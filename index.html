@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <base href="./" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- PWA primary color -->
+    <meta name="theme-color" content="#5A0B45" />
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+
+    <!-- Using Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Using Local Font -->
+    <link rel="stylesheet" type="text/css" href="/fonts/index.css" />
+
+    <title>POSITEASY</title>
+
+    <meta
+      name="description"
+      content="The complete Point of Sale solution revolutionizing ordering and payment processes with a user-friendly touch screen kiosk and versatile software option for enhanced efficiency and profitability. Embrace the future of seamless and efficient ordering experiences with POSITEASY's subscription service."
+    />
+    <meta
+      name="keywords"
+      content="pos,positeasy,iot,javascript,react,material,kit,application,dashboard,admin,template"
+    />
+    <meta name="author" content="POSITEASY" />
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      @media print {
+        body * {
+          visibility: hidden !important;
+        }
+
+        @page {
+          size: auto;
+          margin: 5px;
+        }
+
+        html {
+          max-width: 72mm !important;
+        }
+
+        body {
+          /* width: 72mm !important; */
+        }
+
+        #root {
+          visibility: none;
+        }
+
+        #print * {
+          font-family: 'Arial' !important;
+          visibility: visible !important;
+          margin: 0;
+          padding-left: 1px !important;
+          color: #000 !important;
+          padding: 0;
+          border: 0;
+          box-shadow: none;
+          text-align: left;
+          border-radius: 0;
+          background-color: white !important;
+        }
+
+        #print {
+          position: fixed;
+          left: 0;
+          top: 0;
+          width: 100% !important;
+        }
+
+        #printWrapper {
+          display: flex !important;
+        }
+
+        #noprint {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body
+    style="
+      -ms-user-select: none;
+
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -khtml-user-select: none;
+      user-select: none;
+    "
+  >
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- <div id="print">
+    <div>Title</div>
+  </div> -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

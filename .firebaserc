@@ -1,0 +1,21 @@
+{
+  "projects": {
+    "default": "positeasy-merchant"
+  },
+  "targets": {
+    "positeasy-merchant": {
+      "hosting": {
+        "production": [
+          "positeasy-merchant"
+        ],
+        "staging": [
+          "stage-merchant-positeasy"
+        ],
+        "pre-prod": [
+          "pre-prod-positeasy-merchant"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

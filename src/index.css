@@ -1,0 +1,57 @@
+
+/* custom scrollbar */
+
+.simplebar-scrollbar:before {
+    background-color: #5a0b45 !important;
+    border-radius: 20px !important;
+  }
+  
+  .simplebar-track.simplebar-vertical {
+      width: 10px !important;
+      border-radius: 10px !important;
+  }
+  
+  .simplebar-scrollbar {
+     opacity: 1 !important;
+  }
+  
+  .simplebar-scrollbar:hover {
+    background-color: #5a0b45 !important;
+    width: 7px !important;
+    border-radius: 20px !important;
+  }
+
+
+/* animation dot */
+
+.ring-container {
+  position: relative;
+}
+
+.circle {
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  position: absolute;
+  top: -4px;
+  left: 15px;
+}
+
+.ringring {
+  border: 3px solid red;
+  border-radius: 30px;
+  height: 20px;
+  width: 20px;
+  position: absolute;
+  left: 10px;
+  top: -9px;
+  animation: pulsate 1s ease-out;
+ animation-iteration-count: infinite; 
+  opacity: 0.0
+}
+@keyframes pulsate {
+  0% {-webkit-transform: scale(0.1, 0.1); opacity: 0.0;}
+  50% {opacity: 1.0;}
+  100% {-webkit-transform: scale(1.2, 1.2); opacity: 0.0;}
+}

@@ -1,0 +1,236 @@
+.rs-calendar-table-cell-in-range::before {
+  background-color: #e0d5dd;
+}
+
+.rs-calendar-table-cell-selected .rs-calendar-table-cell-content {
+  background-color: #5a0a45;
+  /* color:#3498ff; */
+}
+
+.rs-calendar-table-cell-disabled.rs-calendar-table-cell-is-today.rs-calendar-table-cell-selected
+  .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-cell-disabled.rs-calendar-table-cell-is-today.rs-calendar-table-cell-selected
+  .rs-calendar-table-header-cell-content:hover,
+.rs-calendar-table-cell-disabled.rs-calendar-table-cell-is-today.rs-calendar-table-header-cell-selected
+  .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-cell-disabled.rs-calendar-table-cell-is-today.rs-calendar-table-header-cell-selected
+  .rs-calendar-table-header-cell-content:hover,
+.rs-calendar-table-cell-disabled.rs-calendar-table-header-cell-is-today.rs-calendar-table-cell-selected
+  .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-cell-disabled.rs-calendar-table-header-cell-is-today.rs-calendar-table-cell-selected
+  .rs-calendar-table-header-cell-content:hover,
+.rs-calendar-table-cell-disabled.rs-calendar-table-header-cell-is-today.rs-calendar-table-header-cell-selected
+  .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-cell-disabled.rs-calendar-table-header-cell-is-today.rs-calendar-table-header-cell-selected
+  .rs-calendar-table-header-cell-content:hover,
+.rs-calendar-table-header-cell-disabled.rs-calendar-table-cell-is-today.rs-calendar-table-cell-selected
+  .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-header-cell-disabled.rs-calendar-table-cell-is-today.rs-calendar-table-cell-selected
+  .rs-calendar-table-header-cell-content:hover,
+.rs-calendar-table-header-cell-disabled.rs-calendar-table-cell-is-today.rs-calendar-table-header-cell-selected
+  .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-header-cell-disabled.rs-calendar-table-cell-is-today.rs-calendar-table-header-cell-selected
+  .rs-calendar-table-header-cell-content:hover,
+.rs-calendar-table-header-cell-disabled.rs-calendar-table-header-cell-is-today.rs-calendar-table-cell-selected
+  .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-header-cell-disabled.rs-calendar-table-header-cell-is-today.rs-calendar-table-cell-selected
+  .rs-calendar-table-header-cell-content:hover,
+.rs-calendar-table-header-cell-disabled.rs-calendar-table-header-cell-is-today.rs-calendar-table-header-cell-selected
+  .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-header-cell-disabled.rs-calendar-table-header-cell-is-today.rs-calendar-table-header-cell-selected
+  .rs-calendar-table-header-cell-content:hover {
+  color: #fff;
+  background-color: #5a0a45;
+}
+
+.rs-calendar-table-cell-is-today .rs-calendar-table-cell-content {
+  -webkit-box-shadow: inset 0 0 0 1px #5a0a45;
+
+  box-shadow: inset 0 0 0 1px #5a0a45;
+}
+.rs-calendar-table-cell-selected .rs-calendar-table-cell-content {
+  color: #fff;
+  background-color: #5a0a45;
+}
+.rs-calendar-month-dropdown-cell-active .rs-calendar-month-dropdown-cell-content {
+  color: #fff;
+  background-color: #5a0a45;
+}
+label:hover .rs-checkbox-wrapper .rs-checkbox-inner::before {
+  border-color: #5a0a45;
+}
+.rs-input:focus,
+.rs-input:hover:not(:disabled) {
+  border-color: #5a0a45;
+}
+.rs-table-cell-full-text:hover {
+  -webkit-box-shadow: inset #5a0a45 0px 0px 2px;
+
+  box-shadow: inset #5a0a45 0px 0px 2px;
+}
+.rs-btn-primary {
+  color: #fff;
+
+  background-color: #5a0a45;
+}
+
+.rs-btn-primary:disabled,
+.rs-btn-primary.rs-btn-disabled {
+  color: #fff;
+  background-color: #5a0a45;
+}
+
+.rs-btn-primary:hover,
+.rs-btn-primary:focus {
+  color: #fff;
+  background-color: #5f0d49;
+}
+
+.rs-calendar-panel .rs-calendar-table-cell-is-today .rs-calendar-table-cell-day {
+  color: #fff;
+  background-color: #5a0a45;
+}
+
+.rs-calendar-panel .rs-calendar-table-cell-selected .rs-calendar-table-cell-content {
+  -webkit-box-shadow: inset 0 0 0 1px #5a0a45;
+
+  box-shadow: inset 0 0 0 1px #5a0a45;
+}
+
+a:hover,
+a:focus {
+  color: #5a0a45;
+  text-decoration: underline;
+}
+.rs-btn-link {
+  color: #5a0a45;
+}
+.rs-btn-link:hover,
+.rs-btn-link:focus {
+  color: #4d2943;
+}
+.rs-pagination-btn.rs-pagination-btn-active:hover,
+.rs-pagination-btn.rs-pagination-btn-active:focus {
+  color: #5a0a45;
+
+  border-color: #5a0a45;
+
+  -webkit-box-shadow: 0 0 0 1px #5a0a45;
+
+  box-shadow: 0 0 0 1px #5a0a45;
+}
+.rs-pagination-btn.rs-pagination-btn-active:active,
+.rs-pagination-btn.rs-pagination-btn-active.rs-btn-active {
+  color: #5a0a45;
+
+  border-color: #5a0a45;
+}
+.rs-pagination-btn.rs-pagination-btn-active:disabled,
+.rs-pagination-btn.rs-pagination-btn-active.rs-btn-disabled {
+  color: #5a0a45;
+
+  border-color: #5a0a45;
+}
+
+.rs-calendar-table-cell-un-same-month .rs-calendar-table-cell-content,
+.rs-calendar-table-cell-un-same-month .rs-calendar-table-header-cell-content,
+.rs-calendar-table-header-cell-un-same-month .rs-calendar-table-cell-content,
+.rs-calendar-table-header-cell-un-same-month .rs-calendar-table-header-cell-content,
+.rs-calendar-table-cell-disabled .rs-calendar-table-cell-content,
+.rs-calendar-table-cell-disabled .rs-calendar-table-header-cell-content,
+.rs-calendar-table-header-cell-disabled .rs-calendar-table-cell-content,
+.rs-calendar-table-header-cell-disabled .rs-calendar-table-header-cell-content,
+.rs-calendar-table-cell-un-same-month .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-cell-un-same-month .rs-calendar-table-header-cell-content:hover,
+.rs-calendar-table-header-cell-un-same-month .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-header-cell-un-same-month .rs-calendar-table-header-cell-content:hover,
+.rs-calendar-table-cell-disabled .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-cell-disabled .rs-calendar-table-header-cell-content:hover,
+.rs-calendar-table-header-cell-disabled .rs-calendar-table-cell-content:hover,
+.rs-calendar-table-header-cell-disabled .rs-calendar-table-header-cell-content:hover {
+  color: #e0d5dd;
+}
+
+.rs-calendar-panel .rs-calendar-table-cell-selected .rs-calendar-table-cell-content {
+  -webkit-box-shadow: inset 0 0 0 1px #5a0a45;
+
+  box-shadow: inset 0 0 0 1px #5a0a45;
+}
+
+.rs-picker-menu
+  .rs-calendar
+  .rs-calendar-table-cell-selected:hover
+  .rs-calendar-table-cell-content {
+  background-color: #5a0a45;
+}
+
+.rs-picker-menu .rs-calendar .rs-calendar-table-cell:hover .rs-calendar-table-cell-content {
+  background-color: #e0d5dd;
+
+  color: #5a0a45;
+}
+.rs-theme-high-contrast
+  .rs-picker-menu
+  .rs-calendar
+  .rs-calendar-table-cell:hover
+  .rs-calendar-table-cell-content {
+  outline: 3px solid rgba(197, 50, 247, 0.25);
+  color: #5a0a45;
+}
+
+.rs-picker-default:not(.rs-picker-disabled) .rs-btn:hover,
+.rs-picker-default:not(.rs-picker-disabled) .rs-picker-toggle:hover,
+.rs-picker-default:not(.rs-picker-disabled) .rs-btn:focus,
+.rs-picker-default:not(.rs-picker-disabled) .rs-picker-toggle:focus,
+.rs-picker-default:not(.rs-picker-disabled) .rs-btn-active,
+.rs-picker-default:not(.rs-picker-disabled) .rs-picker-toggle-active {
+  border-color: #5a0a45;
+}
+
+.rs-picker-toggle-active,
+.rs-picker.rs-picker-focused {
+  -webkit-box-shadow: 0 0 0 3px #e0d5dd;
+
+  box-shadow: 0 0 0 3px #e0d5dd;
+}
+
+.rs-picker-has-value .rs-btn .rs-picker-toggle-value,
+.rs-picker-has-value .rs-picker-toggle .rs-picker-toggle-value {
+  color: #5a0a45;
+}
+
+.rs-picker-toggle .rs-picker-toggle-placeholder{
+  color:#5a0a45;
+}
+
+.rs-input-group:not(.rs-input-group-disabled):hover {
+  border-color :#e0d5dd;
+}
+
+
+.rs-picker-popup .rs-calendar .rs-calendar-table-cell-selected:hover .rs-calendar-table-cell-content {
+  color:#fff;
+  background-color:#5a0a45;
+}
+
+.rs-picker-popup .rs-calendar .rs-calendar-table-cell:hover .rs-calendar-table-cell-content {
+  color:#fff;
+  background-color:#5a0a45;
+}
+
+.rs-picker-error>.rs-picker-input-group, .rs-picker-error>.rs-picker-input-group:focus-within, .rs-input-group:focus-within {
+  border-color : #e5e5ea;
+  outline-color : #e5e5ea
+}
+
+.rs-btn-close:focus, .rs-btn-close:hover {
+  color: #e5e5ea
+}
+
+.rs-btn-close:focus svg path, .rs-btn-close:hover svg path {
+  stroke:#000
+}
+
+.rs-picker-error>.rs-picker-input-group:focus-within {
+  outline: none;
+}
