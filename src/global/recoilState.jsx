@@ -340,14 +340,34 @@ const isShowBillingSummaryState = atom({
   default: false,
 });
 
+const fdSelectedStoreDetailsState = atom({
+  key: 'fdSelectedStoreDetailsState',
+  default: {},
+});
+
+const isPublishFDState = atom({
+  key: 'isPublishFDState',
+  default: false,
+});
+
 const paymentModeListState = atom({
   key: 'paymentModeListState',
   default: [],
 });
 
+const storeReferenceState = atom({
+  key: 'storeReferenceState',
+  default: '',
+});
+
+const storeNameState = atom({
+  key: 'storeNameState',
+  default: '',
+});
+
 const couponDetailsState = atom({
   key: 'couponDetailsState',
-  default: null, 
+  default: null,
 });
 export {
   addons,
@@ -425,9 +445,13 @@ export {
   qrCheck,
   gstSummaryDetailsState,
   isShowBillingSummaryState,
+  fdSelectedStoreDetailsState,
+  isPublishFDState,
   paymentModeListState,
   amountCommentsState,
   percentageCommentsState,
   accountDetailsState,
-  couponDetailsState
+  storeReferenceState,
+  storeNameState,
+  couponDetailsState,
 };

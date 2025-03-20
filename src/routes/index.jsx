@@ -13,6 +13,8 @@ import {
   ROLES_WITHOUT_STORE_STAFF,
   ROLES_DATA,
   AUTHORIZED_ROLES,
+  SWIGGY,
+  ZOMATO,
 } from 'src/constants/AppConstants';
 import CustomCode from 'src/pages/Settings/CustomCode';
 import RoleBasedGuard from './RoleBasedGuard';
@@ -73,17 +75,29 @@ import {
   WhatsappCredits,
   SubscriptionPlan,
   TerminalConfiguration,
+  OnlineCategory,
+  OptionsGroup,
+  Options,
+  OnlineTaxesAndCharges,
+  OnlineStores,
+  RequestFDLogs,
+  AddAndEditOnlineInventory,
   ViewPurchaseOrdersReceives,
   ViewPurchaseManagerApprove,
   PurchaseCategory,
   ReportCustomCode,
+  FDOrders,
 } from './elements';
 import Attendance from 'src/pages/Attendance/Attendance';
 import ProfitAndLossTable from 'src/pages/ProfitAndLossTable';
 import Dashboard from 'src/pages/Dashboard';
 import CountersTable from 'src/pages/CountersTable';
 import TerminalsTable from 'src/pages/TerminalsTable';
-import { allConfiguration, whatsappDetailsState } from 'src/global/recoilState';
+import {
+  allConfiguration,
+  fdSelectedStoreDetailsState,
+  whatsappDetailsState,
+} from 'src/global/recoilState';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { get } from 'lodash';
 import Integration from 'src/pages/Settings/Integration';
@@ -101,6 +115,11 @@ export default function Router() {
 
   const counterSettings = get(configuration, 'counterSettings', {});
   const isCountersEnabled = get(counterSettings, 'isCountersEnabled', false);
+
+  const storesDetails = useRecoilValue(fdSelectedStoreDetailsState);
+
+  const isVisibleFD =
+    storesDetails?.activeIn?.includes?.(SWIGGY) || storesDetails?.activeIn?.includes?.(ZOMATO);
 
   const whatsappDetails = useRecoilValue(whatsappDetailsState);
 
@@ -198,6 +217,14 @@ export default function Router() {
           element: <Inventory />,
         },
         {
+          path: 'inventory/products/add-online',
+          element: <AddAndEditOnlineInventory />,
+        },
+        {
+          path: 'inventory/products/edit-online',
+          element: <AddAndEditOnlineInventory />,
+        },
+        {
           path: 'inventory/counters',
           element: (
             <RoleBasedGuard
@@ -209,6 +236,66 @@ export default function Router() {
               isNotAuth={!isCountersEnabled}
             >
               <Counters />
+            </RoleBasedGuard>
+          ),
+        },
+        {
+          path: 'inventory/onlineCategory',
+          element: (
+            <RoleBasedGuard
+              roles={[
+                ROLES_DATA.master.role,
+                ROLES_DATA.store_manager.role,
+                ROLES_DATA.manager_and_staff.role,
+              ]}
+              isNotAuth={!isVisibleFD}
+            >
+              <OnlineCategory />
+            </RoleBasedGuard>
+          ),
+        },
+        {
+          path: 'inventory/OptionsGroup',
+          element: (
+            <RoleBasedGuard
+              roles={[
+                ROLES_DATA.master.role,
+                ROLES_DATA.store_manager.role,
+                ROLES_DATA.manager_and_staff.role,
+              ]}
+              isNotAuth={!isVisibleFD}
+            >
+              <OptionsGroup />
+            </RoleBasedGuard>
+          ),
+        },
+        {
+          path: 'inventory/Options',
+          element: (
+            <RoleBasedGuard
+              roles={[
+                ROLES_DATA.master.role,
+                ROLES_DATA.store_manager.role,
+                ROLES_DATA.manager_and_staff.role,
+              ]}
+              isNotAuth={!isVisibleFD}
+            >
+              <Options />
+            </RoleBasedGuard>
+          ),
+        },
+        {
+          path: 'inventory/taxesAndCharges',
+          element: (
+            <RoleBasedGuard
+              roles={[
+                ROLES_DATA.master.role,
+                ROLES_DATA.store_manager.role,
+                ROLES_DATA.manager_and_staff.role,
+              ]}
+              isNotAuth={!isVisibleFD}
+            >
+              <OnlineTaxesAndCharges />
             </RoleBasedGuard>
           ),
         },
@@ -327,8 +414,11 @@ export default function Router() {
         },
 
         { path: 'purchases/createPurchaseOrder', element: <CreateAndEditPurchaseOrder /> },
-        { path: 'purchases/createStorePurchaseOrder', element: <CreateAndEditStorePurchaseOrder /> },
-        {              
+        {
+          path: 'purchases/createStorePurchaseOrder',
+          element: <CreateAndEditStorePurchaseOrder />,
+        },
+        {
           path: 'purchases/editPurchaseOrder/:referenceId',
           element: <CreateAndEditPurchaseOrder />,
         },
@@ -366,6 +456,12 @@ export default function Router() {
             </RoleBasedGuard>
           ),
         },
+
+        { path: 'foodDelivery/scanQR', element: <ScanQR /> },
+        { path: 'foodDelivery/onlineStores', element: <OnlineStores /> },
+        { path: 'foodDelivery/requestLogs', element: <RequestFDLogs /> },
+        { path: 'foodDelivery/orders', element: <FDOrders /> },
+
         // { path: 'two', element: <PageTwo /> },
         // { path: 'three', element: <PageThree /> },
       ],

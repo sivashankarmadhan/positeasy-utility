@@ -448,7 +448,7 @@ export default function ViewBilling() {
     let price = (withoutGstAmount + parcelChargesWithoutGst + gstPercentageValue) / 100;
 
     let addOnPrice = 0;
-    map(get(e, 'addOns'), (d) => {
+    map(get(e, 'addOns.addons'), (d) => {
       const { gstPercentageValue, withoutGstAmount } = getTotalPriceAndGst({
         price: d?.price,
         GSTPercent: d?.GSTPercent,
@@ -464,6 +464,7 @@ export default function ViewBilling() {
         addOnPrice += (withoutGstAmount / 100) * Number(get(d, 'quantity'));
       }
     });
+
     return price + addOnPrice;
   };
   const getTotalPriceWithGST = (data) => {
@@ -484,7 +485,7 @@ export default function ViewBilling() {
       });
 
       if (e.GSTPercent > 0) gst += (gstPercentageValue / 100) * e.quantity;
-      map(get(e, 'addOns'), (d) => {
+      map(get(e, 'addOns.addons'), (d) => {
         if (d.GSTPercent > 0) gst += (gstPercentageValue / 100) * d.quantity * e.quantity;
       });
     });
@@ -533,7 +534,7 @@ export default function ViewBilling() {
           parcelCharges += e?.parcelCharges * e.quantity;
         }
       }
-      map(get(e, 'addOns'), (d) => {
+      map(get(e, 'addOns.addons'), (d) => {
         if (e?.parcelCharges) {
           parcelCharges += d?.parcelCharges * d.quantity * e.quantity;
         }
@@ -566,7 +567,7 @@ export default function ViewBilling() {
     if (isEmpty(data)) return;
     map(data, (e) => {
       let serializeAddOn = [];
-      map(get(e, 'addOns'), (d) => {
+      map(get(e, 'addOns.addons'), (d) => {
         serializeAddOn.push({
           quantity: get(d, 'quantity') * get(e, 'quantity'),
           price: convertToRupee(get(d, 'price')),
@@ -1558,14 +1559,13 @@ export default function ViewBilling() {
   const additionalInfo = formatAdditionalInfo(get(orderDetails, 'ordersInfo.additionalInfo'));
 
   const orders = get(orderDetails, 'ordersInfo.orders');
-  console.log('jsjsjsj', orderDetails);
-  console.log('selected', selectedList);
+
   const serializeData = () => {
     const ordersInfo = get(orderDetails, 'ordersInfo');
     const options = [];
     map(get(ordersInfo, 'orders'), (e) => {
       let serializeAddOn = [];
-      map(get(e, 'addOns'), (d) => {
+      map(get(e, 'addOns.addons'), (d) => {
         serializeAddOn.push({
           addOnId: d?.addOnId,
           quantity: d?.quantity * e?.quantity,
@@ -2814,15 +2814,15 @@ export default function ViewBilling() {
                   size="small"
                   filterSelectedOptions
                   options={ORDER_STATUS_VALUES}
-                  renderOption={(props, option) => (
-                    <li {...props}>{ORDER_STATUS_TYPES_LABELS[option]}</li>
-                  )}
-                  filterOptions={(options, { inputValue }) => {
-                    const searchTerm = inputValue.toLowerCase();
-                    return options.filter((option) =>
-                      ORDER_STATUS_TYPES_LABELS[option].toLowerCase().startsWith(searchTerm)
-                    );
-                  }}
+                  // renderOption={(props, option) => (
+                  //   <li {...props}>{ORDER_STATUS_TYPES_LABELS[option]}</li>
+                  // )}
+                  // filterOptions={(options, { inputValue }) => {
+                  //   const searchTerm = inputValue?.toLowerCase();
+                  //   return options.filter((option) =>
+                  //     ORDER_STATUS_TYPES_LABELS[option]?.toLowerCase()?.startsWith?.(searchTerm)
+                  //   );
+                  // }}
                   value={selectedOrderStatus}
                   getOptionDisabled={(option) => checkCurrentOrderStatus(option)}
                   onChange={(event, newValue) => handleChangeOrderStatus(newValue)}

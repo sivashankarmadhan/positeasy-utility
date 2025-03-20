@@ -21,6 +21,7 @@ import { useRecoilValue } from 'recoil';
 import {
   allConfiguration,
   estimateMode,
+  fdSelectedStoreDetailsState,
   isOfflineState,
   offlineOrdersListCountState,
   offlineToOnlineSyncingState,
@@ -33,6 +34,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
 import { useSettingsContext } from 'src/components/settings';
 import NavMini from './NavMini';
+import { SWIGGY, ZOMATO } from 'src/constants/AppConstants';
 
 // ----------------------------------------------------------------------
 
@@ -67,6 +69,11 @@ export default function NavVertical({
   const counterSettings = get(configuration, 'counterSettings', {});
   const isCountersEnabled = get(counterSettings, 'isCountersEnabled', false);
 
+  const storesDetails = useRecoilValue(fdSelectedStoreDetailsState);
+
+  const isVisibleFD =
+    storesDetails?.activeIn?.includes?.(SWIGGY) || storesDetails?.activeIn?.includes?.(ZOMATO);
+
   const whatsappDetails = useRecoilValue(whatsappDetailsState);
 
   const blockedNavigation = !isEstimate
@@ -83,6 +90,13 @@ export default function NavVertical({
   }
   if (!isCountersEnabled) {
     blockedNavigation.push(PATH_DASHBOARD.inventory.counters);
+  }
+
+  if (!isVisibleFD) {
+    blockedNavigation.push(PATH_DASHBOARD.inventory.onlineCategory);
+    blockedNavigation.push(PATH_DASHBOARD.inventory.optionsGroup);
+    blockedNavigation.push(PATH_DASHBOARD.inventory.options);
+    blockedNavigation.push(PATH_DASHBOARD.inventory.taxesAndCharges);
   }
 
   const newNavConfig = formatNavConfigByRole(role, navConfig, blockedNavigation);

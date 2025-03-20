@@ -54,7 +54,11 @@ import {
   whatsappDetailsState,
   whatsappBalanceDetailsState,
   isShowBillingSummaryState,
+  fdSelectedStoreDetailsState,
+  isPublishFDState,
   isMembershipState,
+  storeReferenceState,
+  storeNameState,
 } from './global/recoilState';
 import { generateUniquieId } from './helper/generateUniqueId';
 import ThemeLocalization from './locales';
@@ -70,6 +74,7 @@ import NavigateSetter from 'src/components/NavigateSetter';
 import { isForInStatement } from 'typescript';
 import PRODUCTS_API from './services/products';
 import WHATSAPP_CREDITS from './services/whatsappCredits';
+import ONLINE_STORES from './services/onlineStoresServices';
 
 // ----------------------------------------------------------------------
 
@@ -86,6 +91,11 @@ export default function App() {
   const setGstData = useSetRecoilState(GstData);
   const setOrderConfiguraton = useSetRecoilState(orderTypeConfiguration);
   const setIsEstimateWithNoItemsEnable = useSetRecoilState(isEstimateWithNoItemsEnableState);
+
+  const setStoresDetails = useSetRecoilState(fdSelectedStoreDetailsState);
+  const setIsPublishFD = useSetRecoilState(isPublishFDState);
+  const setStoreReference = useSetRecoilState(storeReferenceState);
+  const setStoreName = useSetRecoilState(storeNameState);
 
   const setSelectedUSBPrinter = useSetRecoilState(selectedUSB);
   const setSelectedBLEPrinter = useSetRecoilState(selectedBLE);
@@ -197,8 +207,8 @@ export default function App() {
 
   const getConfiguration = async () => {
     try {
-      let resp = {}
-      if( role === ROLES_DATA.store_staff.role) {
+      let resp = {};
+      if (role === ROLES_DATA.store_staff.role) {
         resp = await SettingServices.getViewConfiguration();
       } else {
         resp = await SettingServices.getConfiguration();
@@ -347,7 +357,7 @@ export default function App() {
     try {
       const res = await STORES_API.getAccountInfo({
         storeId: selectedStore,
-        terminalId: selectedTerminal
+        terminalId: selectedTerminal,
       });
       setIsMembershipEnable(get(res, 'data.dataValues.merchantSettings.memberShip.isActive'));
     } catch (err) {
@@ -357,7 +367,7 @@ export default function App() {
 
   useEffect(() => {
     if (selectedStore && selectedTerminal) {
-      getAccountInformation()
+      getAccountInformation();
     }
   }, [selectedStore, selectedTerminal]);
 
@@ -429,6 +439,45 @@ export default function App() {
       setIsShowBillingSummary(true);
     }
   }, []);
+
+  useEffect(() => {
+    const { data: isPublishFD } = ObjectStorage.getItem(StorageConstants.IS_PUBLISH_FD);
+    setIsPublishFD(!!isPublishFD);
+  }, []);
+
+  const getStoresDetails = async () => {
+    try {
+      const response = await ONLINE_STORES.onlineStoreDetails(selectedStore);
+      if (response) {
+        setStoresDetails(get(response, 'data.FDStoreSettings'));
+      }
+    } catch (error) {
+      toast.error(error?.errorResponse?.message || ErrorConstants.SOMETHING_WRONG);
+    }
+  };
+
+  useEffect(() => {
+    if (accessToken && selectedStore) {
+      getStoresDetails();
+    }
+  }, [accessToken, selectedStore]);
+
+  const getStoreList = async () => {
+    if (accessToken && selectedStore) {
+      try {
+        const response = await ONLINE_STORES.getStoreAllList();
+        const store = find(get(response, 'data'), (e) => e.storeId === selectedStore);
+        setStoreReference(get(store, 'storeReference'));
+        setStoreName(get(store, 'storeName'));
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+
+  useEffect(() => {
+    getStoreList();
+  }, [accessToken, selectedStore]);
 
   return (
     <HelmetProvider>

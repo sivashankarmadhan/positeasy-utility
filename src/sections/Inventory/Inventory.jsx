@@ -1,5 +1,5 @@
 import { sentenceCase } from 'change-case';
-import { clone, compact, debounce, filter, findIndex, get, isEmpty, map } from 'lodash';
+import { clone, compact, debounce, filter, findIndex, get, isEmpty, map, startCase } from 'lodash';
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 // @mui
@@ -35,8 +35,11 @@ import {
   StatusConstants,
   hideScrollbar,
   ROLES_WITHOUT_STORE_STAFF,
+  ALWAYS_AVAILABLE,
   defaultOrderTypes,
   ROLES_DATA,
+  SWIGGY,
+  ZOMATO,
 } from 'src/constants/AppConstants';
 import { base64_images } from 'src/constants/ImageConstants';
 import {
@@ -47,9 +50,10 @@ import {
   currentProduct,
   currentStoreId,
   currentTerminalId,
+  fdSelectedStoreDetailsState,
   isMembershipState,
+  storeReferenceState,
 } from 'src/global/recoilState';
-import HandleItemDrawer from 'src/pages/Products/HandleItemDrawer';
 import PRODUCTS_API from 'src/services/products';
 // @mui
 import { useTheme } from '@mui/material';
@@ -95,8 +99,11 @@ import CounterBulkActionDialog from './Counters/CounterBulkActionDialog';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import WeekandTimeDialog from 'src/components/WeekandTimeDialog';
 import UnlinkCount from 'src/pages/Products/UnlinkCount';
+import ONLINE_ITEMS from 'src/services/onlineItemsServices';
+import ONLINE_STORES from 'src/services/onlineStoresServices';
 import STORES_API from 'src/services/stores';
 import { formatOrderTypeDataStrucutre } from 'src/utils/formatOrderTypeDataStrucutre';
+import HandleItemDrawer from 'src/pages/Products/HandleItemDrawer';
 // ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
@@ -159,7 +166,7 @@ export default function Inventory() {
   const [addonOpenDialog, setAddonOpenDialog] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [newProduct, setNewProduct] = useState(false);
-  const [currentProductData, setCurrentProduct] = useRecoilState(currentProduct);    
+  const [currentProductData, setCurrentProduct] = useRecoilState(currentProduct);
   const [currentProductAddon, setCurrentProductAddon] = useState([]);
   const [stockOpenDialog, setStockOpenDialog] = useState(false);
   const [openIngredientsDialog, setOpenIngredientsDialog] = useState(false);
@@ -183,6 +190,7 @@ export default function Inventory() {
   const [selected, setSelected] = useState([]);
   const [countersList, setCountersList] = useState([]);
   const [counter, setCounter] = useState([]);
+  const [isOnline, setIsOnline] = useState(false);
   const [category, setCategory] = useState([]);
   const counterSettings = get(configuration, 'counterSettings', {});
   const isCountersEnabled = get(counterSettings, 'isCountersEnabled', false);
@@ -193,14 +201,21 @@ export default function Inventory() {
   const [IsSessionDialog, setIsSessionDialog] = useState(false);
   console.log(isHover, 'hover');
   const [submittedSessionData, setSubmittedSessionData] = useState({});
+
+  const storeReference = useRecoilValue(storeReferenceState);
+
+  const storesDetails = useRecoilValue(fdSelectedStoreDetailsState);
+  const isVisibleFD =
+    storesDetails?.activeIn?.includes?.(SWIGGY) || storesDetails?.activeIn?.includes?.(ZOMATO);
+
   const isOrderTypeEnable = get(configuration, 'isOrderType.isActive', false);
   const previouseOrderTypeList = get(configuration, 'isOrderType.orderTypes', defaultOrderTypes);
   const orderTypesList = formatOrderTypeDataStrucutre(previouseOrderTypeList);
+
   const mouseEnterFunction = () => {
     setIsHover(true);
   };
 
- 
   const mouseLeaveFunction = () => {
     setIsHover(false);
   };
@@ -304,8 +319,8 @@ export default function Inventory() {
   };
   const initialFetch = async () => {
     try {
-      let resp = {}
-      if( currentRole === ROLES_DATA.store_staff.role) {
+      let resp = {};
+      if (currentRole === ROLES_DATA.store_staff.role) {
         resp = await SettingServices.getViewConfiguration();
       } else {
         resp = await SettingServices.getConfiguration();
@@ -361,6 +376,7 @@ export default function Inventory() {
         category: map(category, (e) => e.id),
         prodName: filterName,
         counterId: map(counter, (e) => e.id),
+        isOnline: isOnline,
       };
       if (filterName || filterStatus || category || filterStockMonitor || counter)
         setFilterSearchStatus(true);
@@ -440,7 +456,7 @@ export default function Inventory() {
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-  
+
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelecteds = allProductsWithUnits.map((n) => n.productId);
@@ -451,6 +467,10 @@ export default function Inventory() {
   const handleChangeCounter = (e) => {
     setPage(0);
     setCounter(e);
+  };
+  const handleIsOnline = (status) => {
+    setPage(0);
+    setIsOnline(status);
   };
   const handleChangeCategory = (e) => {
     setPage(0);
@@ -478,7 +498,7 @@ export default function Inventory() {
     setPage(newPage);
 
     if (!isEmpty(selected)) {
-      setSelected([])
+      setSelected([]);
     }
   };
 
@@ -525,10 +545,29 @@ export default function Inventory() {
 
   useEffect(() => {
     if (currentStore && (!isEmpty(allProductsWithUnits) || filterSearchStatus)) fetchProducts();
-  }, [currentStore, page, rowsPerPage, filterStatus, filterStockMonitor, category, counter]);
+  }, [
+    currentStore,
+    page,
+    rowsPerPage,
+    filterStatus,
+    filterStockMonitor,
+    category,
+    counter,
+    isOnline,
+  ]);
+
   useEffect(() => {
     if (currentStore && isEmpty(allProductsWithUnits) && !filterSearchStatus) getAllData();
-  }, [currentStore, page, rowsPerPage, filterStatus, filterStockMonitor, category, counter]);
+  }, [
+    currentStore,
+    page,
+    rowsPerPage,
+    filterStatus,
+    filterStockMonitor,
+    category,
+    counter,
+    isOnline,
+  ]);
 
   const isNotFound = !allProductsWithUnits.length && !!filterSearchStatus;
 
@@ -540,12 +579,11 @@ export default function Inventory() {
     }
   }, [location]);
 
-
   useEffect(() => {
     if (page) {
-      setSelected()
+      setSelected();
     }
-  }, [page]) 
+  }, [page]);
 
   const formatHeaderList = () => {
     const filterInventoryTableColumns = filter(InventoryTableColumns, (_item) => {
@@ -636,12 +674,15 @@ export default function Inventory() {
     };
     setAlertDialogInformation(alertDialogInformation);
   };
+
   if (isLoading) return <LoadingScreen />;
+
   return (
     <>
       <Helmet>
         <title> INVENTORY | POSITEASY </title>
       </Helmet>
+
       <Container
         className="inventoryStep1"
         maxWidth={themeStretch ? false : 'xxl'}
@@ -655,6 +696,7 @@ export default function Inventory() {
         {isEmpty(allProductsWithUnits) &&
           !filterSearchStatus &&
           isEmpty(counter) &&
+          isEmpty(isOnline) &&
           isEmpty(filterStatus) &&
           isEmpty(category) && (
             <Tooltip title="Click to add products to inventory">
@@ -683,38 +725,13 @@ export default function Inventory() {
               </Stack>
             </Tooltip>
           )}
-        {/* {isEmpty(allProductsWithUnits) &&
-          (filterSearchStatus ||
-            !isEmpty(counter) ||
-            !isEmpty(filterStatus) ||
-            !isEmpty(category)) && (
-            <Tooltip title="Not found">
-              <Stack
-                direction={'column'}
-                sx={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '55%',
-                  transform: 'translate(-50%, -50%)',
-                  fontWeight: 'bold',
-                  alignItems: 'center',
-                }}
-              >
-                <Typography variant="h6">
-                  {!isEmpty(filterStatus) || !isEmpty(counter) || !isEmpty(category)
-                    ? `Filtered  products not found`
-                    : 'Products not found'}
-                </Typography>
-              </Stack>
-            </Tooltip>
-          )} */}
         <InventoryListToolbar
           category={category}
           setCategory={setCategory}
           setLinkBulkAddon={setLinkBulkAddon}
           addonList={addonList}
           setFilterSearchStatus={setFilterSearchStatus}
-          numSelected={get(selected, "length", 0)}
+          numSelected={get(selected, 'length', 0)}
           onFilterName={handleFilterByName}
           handleOpenNewProduct={handleOpenNewProduct}
           allProductsWithUnits={allProductsWithUnits}
@@ -734,6 +751,9 @@ export default function Inventory() {
           handleChangeCounter={handleChangeCounter}
           handleChangeCategory={handleChangeCategory}
           configuration={configuration}
+          isOnline={isOnline}
+          handleIsOnline={handleIsOnline}
+          storeReference={storeReference}
         />
 
         {isEmpty(allProductsWithUnits) &&
@@ -777,7 +797,7 @@ export default function Inventory() {
                   orderBy={orderBy}
                   headLabel={formatHeaderList()}
                   rowCount={rowsPerPage}
-                  numSelected={get(selected, "length", 0)}
+                  numSelected={get(selected, 'length', 0)}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
@@ -865,9 +885,6 @@ export default function Inventory() {
             sx={{
               display: 'flex',
               justifyContent: 'flex-start',
-              '& .MuiTablePagination-actions': {
-                // display: isSinglePage ? 'none' : 'block',
-              },
             }}
             labelRowsPerPage=""
             rowsPerPageOptions={[5, 10, 25, 50, 100, 250, 500]}
@@ -971,6 +988,7 @@ export default function Inventory() {
           <QrCodeIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
           QR
         </MenuItem>
+
         <MenuItem onClick={() => handleItem(get(open, 'data'))}>
           <Iconify icon={'eva:edit-fill'} sx={{ mr: 1, color: theme.palette.primary.main }} />
           Edit
@@ -979,6 +997,50 @@ export default function Inventory() {
           <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 1, color: theme.palette.primary.main }} />
           Delete
         </MenuItem>
+
+        {isVisibleFD && (
+          <MenuItem
+            onClick={() => {
+              if (!get(open, 'data.FDSettings')) {
+                navigate(PATH_DASHBOARD.inventory.onlineProductAdd, {
+                  state: {
+                    data: null,
+                    productId: get(open, 'data.productId'),
+                    storeReference: storeReference,
+                    selectedInventoryData: get(open, 'data'),
+                  },
+                });
+              } else {
+                const formatData = {
+                  itemList: {
+                    ...open?.data?.FDSettings,
+                    current_stock:
+                      open?.data?.FDSettings?.current_stock === -1
+                        ? ALWAYS_AVAILABLE
+                        : open?.data?.FDSettings?.current_stock,
+                    isDefaultImage: !!open?.data?.FDSettings?.img_url,
+                  },
+                };
+
+                navigate(PATH_DASHBOARD.inventory.onlineProductEdit, {
+                  state: {
+                    data: formatData,
+                    productId: get(open, 'data.productId'),
+                    storeReference: storeReference,
+                    selectedInventoryData: get(open, 'data'),
+                  },
+                });
+              }
+            }}
+          >
+            <img
+              src={`/assets/swiggy-zomato-logo.svg`}
+              style={{ width: 23, height: 23, marginRight: 7 }}
+            />
+
+            {get(open, 'data.FDSettings') ? 'Edit item' : 'Add item'}
+          </MenuItem>
+        )}
       </Popover>
       {!isEmpty(currentProductStock) && (
         <ManageProductStock
@@ -1090,6 +1152,7 @@ export default function Inventory() {
         countersList={countersList}
         getCountersList={getCountersList}
       />
+
       <TakeATourWithJoy config={inventoryTourConfig} />
     </>
   );

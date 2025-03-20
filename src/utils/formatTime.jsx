@@ -57,6 +57,10 @@ export function dateWithTimeAndSecFormatAMPM(date) {
   return moment(date).format('DD-MMM-YYYY hh:mm:ss A');
 }
 
+export function timeAndSecFormat(date) {
+  return moment(date).format('hh:mm:ss A');
+}
+
 export function fDatesWithTimeStamp(date) {
   return moment(date).format('DD-MMM-YYYY hh:mm A');
 }
@@ -262,3 +266,15 @@ export function fDateTimes(date, newFormat) {
 export function DateTimes(date) {
   return dayjs(date).format('YYYY-MM-DD');
 }
+
+export const AddTimeWithCurrentDate = (time) => {
+  // Set the specific time
+  const specificTime = time;
+
+  // Get the current date in the desired format and combine it with the specific time
+  const currentDateWithTime = moment().format('YYYY-MM-DD') + ' ' + specificTime;
+
+  // Convert to a Moment.js object for further manipulation
+  const dateTime = moment(currentDateWithTime);
+  return dateTime;
+};

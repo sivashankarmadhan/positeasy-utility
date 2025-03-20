@@ -28,7 +28,7 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
 import { useMediaQuery } from '@poriyaalar/custom-hooks';
-import { find, get, isEmpty, map, some, includes } from 'lodash';
+import { every, find, forEach, get, isEmpty, map, some, startCase, includes } from 'lodash';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
@@ -46,6 +46,11 @@ import {
   StockMonitorArrayConstants,
   StockMonitorConstants,
   hideScrollbar,
+  SWIGGY,
+  ZOMATO,
+  ENABLE,
+  ElementNames,
+  DISABLE,
 } from 'src/constants/AppConstants';
 import { ErrorConstants } from 'src/constants/ErrorConstants';
 import { SuccessConstants } from 'src/constants/SuccessConstants';
@@ -55,7 +60,9 @@ import {
   currentStoreId,
   currentProduct,
   products,
+  fdSelectedStoreDetailsState,
   terminalConfigurationState,
+  storeNameState,
 } from 'src/global/recoilState';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import PRODUCTS_API from 'src/services/products';
@@ -73,6 +80,14 @@ import PreviewIcon from '@mui/icons-material/Preview';
 import ViewInventoryDialog from './ViewInventoryDialog';
 import UnlinkCount from 'src/pages/Products/UnlinkCount';
 import COUNTERS_API from 'src/services/counters';
+import moment from 'moment';
+import ONLINE_ITEMS from 'src/services/onlineItemsServices';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import dayjs from 'dayjs';
+import FDAutoEnableDialog from 'src/components/FDAutoEnableDialog';
 
 // ----------------------------------------------------------------------
 
@@ -150,6 +165,9 @@ export default function InventoryListToolbar({
   counter,
   category,
   handleChangeCategory,
+  isOnline,
+  handleIsOnline,
+  storeReference,
 }) {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -184,6 +202,11 @@ export default function InventoryListToolbar({
   const [openUnlinkProduct, setOpenUnlinkProduct] = useState(false);
   const [currentProductData, setCurrentProduct] = useRecoilState(currentProduct);
   const currentStore = useRecoilValue(currentStoreId);
+  const storeName = useRecoilValue(storeNameState);
+
+  const storesDetails = useRecoilValue(fdSelectedStoreDetailsState);
+  const isVisibleFD =
+    storesDetails?.activeIn?.includes?.(SWIGGY) || storesDetails?.activeIn?.includes?.(ZOMATO);
 
   const setAlertDialogInformation = useSetRecoilState(alertDialogInformationState);
   const fetchProducts = async () => {
@@ -303,7 +326,11 @@ export default function InventoryListToolbar({
     if (e === IMPORT_EXPORT_TOOLBAR.EXPORT_MENU) {
       handleGetMenu();
     }
+    if (e === IMPORT_EXPORT_TOOLBAR.IMPORT_ONLINE_STOCK) {
+      handleOpenPartnerImport(e);
+    }
   };
+
   const handleCloseImport = () => {
     setOpenImport(false);
   };
@@ -422,7 +449,10 @@ export default function InventoryListToolbar({
     }
   };
   const checkIsStatusAll = (status) => {
-    const check = some(totalProducts, (e) => includes(selected, e.productId) && e.status === status);
+    const check = some(
+      totalProducts,
+      (e) => includes(selected, e.productId) && e.status === status
+    );
     if (!check) return true;
     return false;
   };
@@ -442,6 +472,52 @@ export default function InventoryListToolbar({
   const isActiveAll = checkIsStatusAll(StatusConstants.ACTIVE);
   const isSoldOutAll = checkIsStatusAll(StatusConstants.SOLDOUT);
   const isAddonNA = checkIsAddonEmptyAll();
+
+  const FDEnableItems = [];
+  const FDDisableItems = [];
+  const otherItems = [];
+
+  forEach(allProductsWithUnits, (_product) => {
+    const activeFDIcon =
+      _product?.FDSettings?.available ||
+      (_product?.FDSettings?.turnOnAt
+        ? _product?.FDSettings?.turnOnAt >= moment().unix() * 1000
+        : false);
+
+    if (selected.includes(get(_product, 'productId'))) {
+      if (get(_product, 'FDSettings') && activeFDIcon) {
+        FDEnableItems.push(_product);
+      } else if (get(_product, 'FDSettings') && !activeFDIcon) {
+        FDDisableItems.push(_product);
+      } else {
+        otherItems.push(_product);
+      }
+    }
+  });
+
+  const isCheckAllEnableItems =
+    !isEmpty(FDEnableItems) && isEmpty(otherItems) && isEmpty(FDDisableItems)
+      ? every(FDEnableItems, (_product) => {
+          const activeFDIcon =
+            _product?.FDSettings?.available ||
+            (_product?.FDSettings?.turnOnAt
+              ? _product?.FDSettings?.turnOnAt >= moment().unix() * 1000
+              : false);
+          return activeFDIcon;
+        })
+      : false;
+
+  const isCheckAllDisableItems =
+    !isEmpty(FDDisableItems) && isEmpty(otherItems) && isEmpty(FDEnableItems)
+      ? every(FDDisableItems, (_product) => {
+          const activeFDIcon =
+            _product?.FDSettings?.available ||
+            (_product?.FDSettings?.turnOnAt
+              ? _product?.FDSettings?.turnOnAt >= moment().unix() * 1000
+              : false);
+          return !activeFDIcon;
+        })
+      : false;
 
   const handleAlertDialog = ({ title, status }) => {
     const alertDialogInformation = {
@@ -494,6 +570,86 @@ export default function InventoryListToolbar({
             backgroundColor: theme.palette.error.main,
             '&:hover': {
               backgroundColor: theme.palette.error.main,
+            },
+          },
+        },
+        secondary: {
+          text: 'Cancel',
+          onClick: (onClose) => {
+            onClose();
+          },
+          sx: {
+            color: '#000',
+          },
+        },
+      },
+    };
+    setAlertDialogInformation(alertDialogInformation);
+  };
+
+  const toggleOnlineItem = async ({ status, onClose, event, onLoading } = {}) => {
+    try {
+      // onLoading?.(true);
+      let dateWithTime;
+
+      if (status === DISABLE) {
+        dateWithTime = event.view.document.getElementsByName(
+          ElementNames.DISABLE_ONLINE_ITEM_DATE_AND_TIME
+        )?.[0]?.value;
+      }
+
+      const payload = {
+        storeReference,
+        itemList: selected,
+        action: status,
+        ...(dateWithTime
+          ? { turnOnAt: moment(dateWithTime, 'YY-MM-DD hh:mm A').unix() * 1000 }
+          : {}),
+        actionType: 'TOGGLE_ITEM',
+        storeName,
+      };
+      const response = await ONLINE_ITEMS.toggleOnlineItems(payload);
+
+      if (response?.data?.recResponse?.message && response?.data?.recResponse?.status) {
+        toast?.[response?.data?.recResponse?.status]?.(response?.data?.recResponse?.message);
+      } else {
+        toast.success(SuccessConstants.UPDATED_SUCCESSFULLY);
+      }
+      setSelected([]);
+      intialFetch();
+      // onLoading?.(false);
+      onClose();
+    } catch (err) {
+      console.log('err', err);
+      toast.error(err?.response?.message || err?.errorResponse?.message);
+      // onLoading?.(false);
+    }
+  };
+
+  const toggleOnlineItemWithAlertDialog = (status) => {
+    const alertDialogInformation = {
+      open: true,
+      title: 'Confirm !',
+      subtitle: (
+        <Stack flexDirection="column" gap={1.5}>
+          <Typography>Are you sure You want to {status} online items</Typography>
+          {status === DISABLE && (
+            <FDAutoEnableDialog
+              DateTimePickerName={ElementNames.DISABLE_ONLINE_ITEM_DATE_AND_TIME}
+            />
+          )}
+        </Stack>
+      ),
+      actions: {
+        primary: {
+          text: startCase(status),
+          onClick: (onClose, onLoading, event) => {
+            toggleOnlineItem({ status, onClose, event, onLoading });
+          },
+          sx: {
+            backgroundColor: status === ENABLE ? 'green' : 'red',
+            '&:hover': {
+              backgroundColor: status === ENABLE ? 'green' : 'red',
             },
           },
         },
@@ -673,6 +829,43 @@ export default function InventoryListToolbar({
                         <DeleteIcon sx={{ color: theme.palette.common.primary, mr: 1 }} />
                         Delete All
                       </MenuItem>
+
+                      {isVisibleFD && (
+                        <>
+                          <MenuItem
+                            disabled={!isCheckAllDisableItems}
+                            onClick={() => {
+                              toggleOnlineItemWithAlertDialog(ENABLE);
+                            }}
+                          >
+                            <img
+                              src={
+                                !isCheckAllDisableItems
+                                  ? '/assets/swiggy-zomato-logo-disabled.svg'
+                                  : '/assets/swiggy-zomato-logo.svg'
+                              }
+                              style={{ width: 23, height: 23, marginRight: 10 }}
+                            />
+                            Enable Items
+                          </MenuItem>
+                          <MenuItem
+                            disabled={!isCheckAllEnableItems}
+                            onClick={() => {
+                              toggleOnlineItemWithAlertDialog('disable');
+                            }}
+                          >
+                            <img
+                              src={
+                                !isCheckAllEnableItems
+                                  ? '/assets/swiggy-zomato-logo-disabled.svg'
+                                  : '/assets/swiggy-zomato-logo.svg'
+                              }
+                              style={{ width: 23, height: 23, marginRight: 10 }}
+                            />
+                            Disable Items
+                          </MenuItem>
+                        </>
+                      )}
                     </Popover>
                   </Stack>
 
@@ -742,6 +935,7 @@ export default function InventoryListToolbar({
                       )}
                     />
                   )}
+
                   <Stack
                     sx={{
                       alignItems: 'center',
@@ -751,6 +945,26 @@ export default function InventoryListToolbar({
                       width: '100%',
                     }}
                   >
+                    <Tooltip title={isOnline ? 'Online products' : 'Offline products'}>
+                      <IconButton
+                        color="primary"
+                        onClick={() => {
+                          handleIsOnline(!isOnline);
+                        }}
+                      >
+                        {isOnline ? (
+                          <img
+                            src={`/assets/swiggy-zomato-logo.svg`}
+                            style={{ width: 23, height: 23, opacity: 20 }}
+                          />
+                        ) : (
+                          <img
+                            src={`/assets/swiggy-zomato-logo-disabled.svg`}
+                            style={{ width: 23, height: 23, opacity: 20 }}
+                          />
+                        )}
+                      </IconButton>
+                    </Tooltip>
                     <Tooltip title="Inventory stock">
                       <IconButton color="primary" onClick={handleOpenViewInventory}>
                         <Iconify icon={'fluent-mdl2:quantity'} />

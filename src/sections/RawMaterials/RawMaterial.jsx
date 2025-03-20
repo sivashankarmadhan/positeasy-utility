@@ -67,7 +67,7 @@ export default function RawMaterial() {
   const [totalRowCount, setTotalRowCount] = useState(0);
   const [openDeleteProduct, setOpenDeleteProduct] = useState(false);
   const [currentProductData, setCurrentProduct] = useRecoilState(currentRawProduct);
-  
+
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [selected, setSelected] = useState([]);
   const [newProduct, setNewProduct] = useState(false);
@@ -88,7 +88,6 @@ export default function RawMaterial() {
   const setAlertDialogInformation = useSetRecoilState(alertDialogInformationState);
   const [isOpenViewStockDialog, setIsOpenViewStockDialog] = useState(false);
   const [openProductsDialog, setOpenProductsDialog] = useState(false);
-
 
   const navigate = useNavigate();
   const location = useLocation();

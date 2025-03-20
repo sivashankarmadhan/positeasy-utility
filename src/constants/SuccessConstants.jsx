@@ -1,7 +1,5 @@
 export const SuccessConstants = {
   STATUS_CHANGED: 'Product status changed',
-   PAYMENT_MODE_SAVED_SUCCESSFULLY:'Payment modes saved successfully!',
-  PAYMENT_MODE_ADDED_SUCCESSFULLY:'Payment mode added successfully!',
   SAVE_SUCCESSFUL: 'Saved successfully',
   SENT_SUCCESSFUL: 'Sent successfully',
   CREATED_SUCCESSFUL: 'Created successfully',
@@ -50,5 +48,7 @@ export const SuccessConstants = {
   MANAGER_ACCOUNT_ACCESS_IS_CHANGED_SUCCESSFULLY: 'Manager account access is changed successfully',
   REMOVED_MANAGER_ACCOUNT_SUCCESSFULLY: 'Removed manager account successfully',
   INTEGRATION_DELETE: 'Integration Deleted Successfully',
+  UPDATED_ONLINE_STOCK: 'Updated online stock',
+  REPLACED_SUCCESSFULLY: 'Replaced successfully',
   COUPON_APPLIED_SUCCESS: 'Coupon applied successfully!',
 };

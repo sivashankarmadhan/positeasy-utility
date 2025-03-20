@@ -7,16 +7,14 @@ import {
   FormControlLabel,
   FormGroup,
   Grid,
-  IconButton,
   Stack,
   Switch,
   Tooltip,
   Typography,
   useTheme,
 } from '@mui/material';
-
 import { capitalize, filter, get, isEmpty, map } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import {
@@ -24,7 +22,6 @@ import {
   ROLES_DATA,
   KDS_ORDER_STATUS_TYPES,
   BILLING_SCAN_KEYS,
-  PAYMENT_BY_CONSTANT,
 } from 'src/constants/AppConstants';
 import { ErrorConstants } from 'src/constants/ErrorConstants';
 import { SuccessConstants } from 'src/constants/SuccessConstants';
@@ -50,10 +47,6 @@ import AdditionalChargesDialog from 'src/components/AdditinalChargesDialog';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
-import CloseIcon from '@mui/icons-material/Close';
-import { Dialog, TextField } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-
 export default function TerminalConfiguration() {
   const theme = useTheme();
   const currentStore = useRecoilValue(currentStoreId);
@@ -72,7 +65,8 @@ export default function TerminalConfiguration() {
   const [terminalConfiguration, setTerminalConfiguration] = useRecoilState(
     terminalConfigurationState
   );
-
+  const [selectedValue, setSelectedValue] = useState('1');
+  const kdsSoundNotification = get(terminalConfiguration, 'kdsNotificationSound', '');
   const isCaptainView = get(terminalConfiguration, 'isCaptainView', false);
   const isKitchenDisplay = get(terminalConfiguration, 'isKitchenDisplay', false);
   const isBypassRequest = get(terminalConfiguration, 'isBypassRequest', false);
@@ -93,6 +87,7 @@ export default function TerminalConfiguration() {
     'additionalDeliveryCharges.isActive',
     false
   );
+  const audioRefs = useRef([]);
   const isSplitPaymentMode = get(terminalConfiguration, 'isSplitPaymentMode', false);
   const isEnableNotParcelBilling = get(terminalConfiguration, 'isEnableNotParcelBilling', false);
   const removeTableKOTButton = get(terminalConfiguration, 'removeTableKOTButton', true);
@@ -108,7 +103,7 @@ export default function TerminalConfiguration() {
     defaultCashDrawerValue;
   const isDisableCounter = get(terminalConfiguration, 'isDisableCounter', false);
   const isDefaultCounterEnabled = get(terminalConfiguration, 'defaultCounterConfig.isActive');
-
+  const [playingAudio, setPlayingAudio] = useState(null);
   const shiftSummaryMsg = get(terminalConfiguration, 'isShiftSummaryMsg', {
     sendMsg: false,
     contactNumber: [],
@@ -117,6 +112,7 @@ export default function TerminalConfiguration() {
     sendMail: false,
     email: [],
   });
+  console.log('isShowAdditionalDelivery', isShowAdditionalDelivery);
   const enabledEndShiftForEmail = get(terminalConfiguration, 'isShiftSummaryMail.sendMail', false);
   const enabledEndShiftForWhatsapp = get(terminalConfiguration, 'isShiftSummaryMsg.sendMsg', false);
 
@@ -128,34 +124,17 @@ export default function TerminalConfiguration() {
   const [openBillingScanQrDialog, setOpenBillingScanQrDialog] = useState(false);
 
   const isBulkOrderClose = get(terminalConfiguration, 'isBulkOrderClose', false);
+  const isMultipleKot = get(terminalConfiguration, 'isMultipleKot', false);
   const isCustomerShow = get(terminalConfiguration, 'isCustomerShow', false);
 
   const [bulkOrderClose, setBulkOrderClose] = useState(false);
+  const [multipleClose, setMultipleClose] = useState(false);
   const [customerShow, setCustomerShow] = useState(false);
 
   const [openAdditionalDiscountDialog, setOpenAdditionalDiscountDialog] = useState(false);
   const [openAdditionalPackingDialog, setOpenAdditionalPackingDialog] = useState(false);
   const [openAdditionalDeliveryDialog, setOpenAdditionalDeliveryDialog] = useState(false);
   const [openAdditionalChargesDialog, setOpenAdditionalChargesDialog] = useState(false);
-
-
-  const paymentModeData = get(terminalConfiguration, 'paymentMode');
-
-
-  const [open, setOpen] = useState(false);
-  const [paymentMode, setPaymentMode] = useState('');
-
-  const [paymentView, setPaymentView] = useState(PAYMENT_BY_CONSTANT[0].value); 
-  const [paymentModeList, setPaymentModeList] = useState({
-    cash: true,
-    card: false,
-    upi: false,
-    zomato: false,
-    swiggy: false,
-    isSavePaymentMode: false,
-    'dynamic QR': { status: false, gstType: 'inc' },
-  });
-
   const initialFetch = async () => {
     if (!currentStore || !currentTerminal) return;
     try {
@@ -236,6 +215,19 @@ export default function TerminalConfiguration() {
     } catch (e) {
       console.log(e);
     }
+  };
+  const handleAudioPlay = (index) => {
+    if (playingAudio !== null && playingAudio !== index) {
+      audioRefs.current[playingAudio].pause();
+      audioRefs.current[playingAudio].currentTime = 0;
+    }
+
+    setPlayingAudio(index);
+  };
+
+  const handleChange = (event) => {
+    setSelectedValue(event.target.value);
+    handlePostConfiguration('kdsNotificationSound', event.target.value);
   };
 
   const handleChangeScanQR = async () => {
@@ -434,7 +426,14 @@ export default function TerminalConfiguration() {
       toast.error(err?.errorResponse?.message || ErrorConstants.SOMETHING_WRONG);
     }
   };
-
+  const handleMultipleKot = async () => {
+    try {
+      await handlePostConfiguration('isMultipleKot', !isMultipleKot);
+      setMultipleClose(false);
+    } catch (err) {
+      toast.error(err?.errorResponse?.message || ErrorConstants.SOMETHING_WRONG);
+    }
+  };
   const handleCustomerTable = async (customerShow) => {
     try {
       await handlePostConfiguration('isCustomerShow', !isCustomerShow);
@@ -522,68 +521,6 @@ export default function TerminalConfiguration() {
       console.log(err);
     }
   };
-
-
-
-  const handlePaymentMode = (updatedModes) => {
-    setPaymentModeList((prev) => ({
-      ...prev,
-      ...updatedModes,
-      cash: true,
-    }));
-  };
-
-
-
-  const handleCustomPayment = () => {
-    if (!paymentMode.trim()) return; 
-  
-    if (Object.prototype.hasOwnProperty.call(paymentModeList, paymentMode.trim())) {
-      toast.error(ErrorConstants.PAYMENT_MODE_ALREADY_EXIST);
-      return;
-    }
-  
-    setPaymentModeList((prev) => ({ ...prev, [paymentMode.trim()]: true }));
-    setPaymentMode('');
-    toast.success( SuccessConstants.PAYMENT_MODE_ADDED_SUCCESSFULLY);
-  };
-  
-  
-
-
-  const handleClearAll = (mode) => {
-    setPaymentModeList((prev) => {
-      const { [mode]: _, ...newList } = prev;
-      return newList;
-    });
-  };
-
-  const handleSubmitModeList = async () => {
-    try {
-      const options = {
-        storeId: currentStore,
-        terminalId: currentTerminal,
-        terminalSettings: {
-          ...terminalConfiguration,
-          paymentMode: paymentModeList,
-          paymentView: paymentView,
-        },
-      };
-      await SettingServices.postTerminalConfiguration(options);
-      toast.success(SuccessConstants.PAYMENT_MODE_SAVED_SUCCESSFULLY);
-      initialFetch();
-      setOpen(false);
-    } catch (e) {
-      console.log(e);
-      toast.error(ErrorConstants.SOMETHING_WRONG);
-    }
-  };
-
-  useEffect(() => {
-    if (paymentModeData && typeof paymentModeData === 'object') {
-      setPaymentModeList(paymentModeData);
-    }
-  }, [paymentModeData]);
 
   return (
     <Box
@@ -1281,6 +1218,46 @@ export default function TerminalConfiguration() {
                 })}
               </FormGroup>
             </Grid>
+            <Grid
+              item
+              xs={12}
+              sm={5.8}
+              md={3.8}
+              sx={{ border: '1px solid #DEDEDE', borderRadius: '6px', width: '80vw', gap: 2, p: 2 }}
+            >
+              <FormControl>
+                <RadioGroup
+                  aria-labelledby="demo-radio-buttons-group-label"
+                  defaultValue="1"
+                  value={selectedValue || kdsSoundNotification}
+                  name="radio-buttons-group"
+                >
+                  {[1, 2, 3, 4, 5].map((item, index) => {
+                    return (
+                      <FormControlLabel
+                        value={item}
+                        control={<Radio />}
+                        onChange={handleChange}
+                        label={
+                          <audio
+                            ref={(el) => (audioRefs.current[index] = el)}
+                            controls
+                            controlsList="nodownload noremoteplayback nofullscreen"
+                            onPlay={() => handleAudioPlay(index)}
+                          >
+                            <source
+                              src={`https://audio-pos.s3.ap-south-1.amazonaws.com/ringtone-${item}.mp3`}
+                              type="audio/mpeg"
+                            />
+                            Your browser does not support the audio element.
+                          </audio>
+                        }
+                      ></FormControlLabel>
+                    );
+                  })}
+                </RadioGroup>
+              </FormControl>
+            </Grid>
           </Grid>
         </Box>
 
@@ -1325,266 +1302,6 @@ export default function TerminalConfiguration() {
                 Enable to split payment mode in billing
               </Typography>
             </Grid>{' '}
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={4}
-              sx={{
-                border: '1px solid #DEDEDE',
-                p: 2,
-              }}
-            >
-              <Box sx={{ p: 2 }}>
-                <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                  Payment Mode
-                </Typography>
-
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  gap={1}
-                  sx={{ cursor: 'pointer' }}
-                  onClick={() => setOpen(true)}
-                >
-                  <Typography
-                    variant="body1"
-                    sx={{ color: '#370525', fontWeight: 500, textDecoration: 'underline' }}
-                  >
-                    Add/View
-                  </Typography>
-                </Box>
-
-                <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-                  <Box sx={{ p: 2 }}>
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      mb={2}
-                    >
-                      <Typography variant="h6" fontWeight="bold">
-                        Payment Modes
-                      </Typography>
-                      <Tooltip title="Close">
-                        <IconButton sx={{ color: '#370525' }} onClick={() => setOpen(false)}>
-                          <CloseIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-
-                    <Divider />
-
-                    <Stack sx={{ height: '350px', overflowY: 'auto', mt: 2 }}>
-                      <Box display="flex" marginTop={2} gap={1}>
-                        <TextField
-                          autoFocus
-                          fullWidth
-                          value={paymentMode}
-                          onChange={(e) => {
-                            if (e.target.value.length > 12) return;
-                            setPaymentMode(e.target.value);
-                          }}
-                          label="Enter Payment Mode"
-                          variant="outlined"
-                          size="small"
-                        />
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          disabled={!paymentMode.trim()}
-                          onClick={handleCustomPayment}
-                        >
-                          Add
-                        </Button>
-                      </Box>
-
-                      <Box
-                        display="grid"
-                        gridTemplateColumns={{ xs: '1fr 1fr', md: '1fr 1fr 1fr' }}
-                        gap={2}
-                        mt={2}
-                        ml={2}
-                      >
-                        {['cash', 'card', 'upi', 'zomato', 'swiggy'].map((mode) => (
-                          <FormControlLabel
-                            key={mode}
-                            control={
-                              <Checkbox
-                                checked={!!paymentModeList[mode]}
-                                onChange={() =>
-                                  handlePaymentMode({ [mode]: !paymentModeList[mode] || false })
-                                }
-                              />
-                            }
-                            label={mode.charAt(0).toUpperCase() + mode.slice(1)}
-                          />
-                        ))}
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={paymentModeList['dynamic QR']?.status}
-                              onChange={() =>
-                                handlePaymentMode({
-                                  'dynamic QR': {
-                                    ...paymentModeList['dynamic QR'],
-                                    status: !paymentModeList['dynamic QR']?.status,
-                                  },
-                                })
-                              }
-                            />
-                          }
-                          label={
-                            <Box display="flex" flexDirection="column">
-                              <Typography>Dynamic QR</Typography>
-                              {paymentModeList['dynamic QR']?.status && (
-                                <Typography variant="caption">
-                                  <span
-                                    style={{
-                                      textDecoration:
-                                        paymentModeList['dynamic QR']?.gstType === 'inc'
-                                          ? 'underline'
-                                          : 'none',
-                                      cursor: 'pointer',
-                                    }}
-                                    onClick={() =>
-                                      handlePaymentMode({
-                                        'dynamic QR': { status: true, gstType: 'inc' },
-                                      })
-                                    }
-                                  >
-                                    inc
-                                  </span>{' '}
-                                  <span
-                                    style={{
-                                      textDecoration:
-                                        paymentModeList['dynamic QR']?.gstType === 'exc'
-                                          ? 'underline'
-                                          : 'none',
-                                      cursor: 'pointer',
-                                    }}
-                                    onClick={() =>
-                                      handlePaymentMode({
-                                        'dynamic QR': { status: true, gstType: 'exc' },
-                                      })
-                                    }
-                                  >
-                                    exc
-                                  </span>{' '}
-                                  <span>(2% Charges)</span>
-                                </Typography>
-                              )}
-                            </Box>
-                          }
-                        />
-                        {Object.keys(paymentModeList)
-                          .filter(
-                            (customMode) =>
-                              ![
-                                'cash',
-                                'card',
-                                'upi',
-                                'zomato',
-                                'swiggy',
-                                'isSavePaymentMode',
-                                'dynamic QR',
-                              ].includes(customMode)
-                          )
-                          .map((customMode) => (
-                            <Box key={customMode} display="flex" alignItems="center">
-                              <FormControlLabel
-                                control={
-                                  <Checkbox
-                                    checked={paymentModeList[customMode]}
-                                    onChange={() =>
-                                      handlePaymentMode({
-                                        [customMode]: !paymentModeList[customMode],
-                                      })
-                                    }
-                                  />
-                                }
-                                label={customMode}
-                              />
-                              <IconButton size="small" onClick={() => handleClearAll(customMode)}>
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Box>
-                          ))}
-                      </Box>
-
-                      <Box mt={2} ml={2}>
-                        <Typography variant="body2">View Mode</Typography>
-                        <RadioGroup
-                          row
-                          value={paymentView}
-                          onChange={(e) => setPaymentView(e.target.value)}
-                        >
-                          {map(PAYMENT_BY_CONSTANT, (e) => {
-                            const value = get(e, 'value', '');
-                            return (
-                              <FormControlLabel
-                                key={value}
-                                value={value}
-                                control={
-                                  <Radio
-                                    sx={{
-                                      color: '#6B7280',
-                                      '&.Mui-checked': { color: '#370525' },
-                                    }}
-                                  />
-                                }
-                                label={get(e, 'label', '')}
-                                sx={{ color: '#370525', marginRight: 2 }}
-                              />
-                            );
-                          })}
-                        </RadioGroup>
-                      </Box>
-
-                      <Box display="flex" alignItems="center" mt={2}>
-                        <Typography>Save payment mode</Typography>
-                        <Checkbox
-                          checked={paymentModeList.isSavePaymentMode}
-                          onChange={() =>
-                            handlePaymentMode({
-                              isSavePaymentMode: !paymentModeList.isSavePaymentMode,
-                            })
-                          }
-                        />
-                      </Box>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontWeight: '500',
-                          fontSize: '10px',
-                          color: 'black',
-                          p: 1,
-                          pl: 1,
-                          backgroundColor: alpha(theme.palette.primary.main, 0.2),
-                          borderRadius: '5px',
-                          opacity: '80%',
-                          mt: 1,
-                        }}
-                      >
-                        <b>Note:</b> Enabling this option will display selected payment modes during
-                        checkout.
-                      </Typography>
-                    </Stack>
-
-                    <Divider sx={{ mt: 2, mb: 2 }} />
-
-                    <Stack direction="row" justifyContent="flex-end" spacing={2}>
-                      <Button onClick={() => setOpen(false)} variant="outlined">
-                        Close
-                      </Button>
-                      <Button onClick={handleSubmitModeList} variant="contained">
-                        Submit
-                      </Button>
-                    </Stack>
-                  </Box>
-                </Dialog>
-              </Box>
-            </Grid>
             <Grid
               item
               xs={12}
@@ -1964,6 +1681,48 @@ export default function TerminalConfiguration() {
 
               <Typography variant="body2" sx={{ fontWeight: '300' }}>
                 Enable the staff to view Customer orders
+              </Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid xs={14}>
+          <Typography variant="h6" sx={{ mb: 2, mt: 1 }}>
+            Food Delivery
+          </Typography>
+          <Grid container gap={2}>
+            <Grid
+              item
+              xs={12}
+              sm={5.8}
+              md={4}
+              sx={{ border: '1px solid #DEDEDE', borderRadius: '6px', gap: 2, p: 2 }}
+            >
+              <Box
+                spacing={0.5}
+                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
+                <Typography variant="body1" sx={{ fontWeight: 700, fontSize: '14px' }}>
+                  Allow Multiple KOT
+                </Typography>
+                <Switch
+                  name="isMultipleKot"
+                  checked={isMultipleKot}
+                  onChange={() => handleMultipleKot('isMultipleKot', !isMultipleKot || false)}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: theme.palette.primary.light,
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track': {
+                      backgroundColor: theme.palette.primary.light,
+                    },
+                    mx: 1.35,
+                  }}
+                />
+              </Box>
+
+              <Typography variant="body2" sx={{ fontWeight: '300' }}>
+                Enable Multiple KOT to generate separate kitchen tickets for efficient order
+                processing.
               </Typography>
             </Grid>
           </Grid>

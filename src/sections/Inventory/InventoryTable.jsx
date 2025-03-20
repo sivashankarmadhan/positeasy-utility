@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import {
   Box,
   Checkbox,
+  Chip,
   IconButton,
   Stack,
   TableCell,
@@ -23,11 +24,20 @@ import QrCodeIcon from '@mui/icons-material/QrCode';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import {
   defaultOrderTypes,
+  ENABLE,
   ROLES_WITHOUT_STORE_STAFF,
   StatusConstants,
+  SWIGGY,
+  ZOMATO,
 } from 'src/constants/AppConstants';
 import { base64_images } from 'src/constants/ImageConstants';
-import { allAddons, allConfiguration, allProducts, currentProduct } from 'src/global/recoilState';
+import {
+  allAddons,
+  allConfiguration,
+  allProducts,
+  currentProduct,
+  fdSelectedStoreDetailsState,
+} from 'src/global/recoilState';
 // @mui
 import { useTheme } from '@mui/material';
 // components
@@ -38,13 +48,15 @@ import { useNavigate } from 'react-router';
 import VegNonIcon from 'src/components/VegNonIcon';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import AuthService from '../../services/authService';
-import { formatAmountToIndianCurrency } from '../../utils/formatNumber';
+import { formatAmountToIndianCurrency, toFixedIfNecessary } from '../../utils/formatNumber';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DescriptionIcon from '@mui/icons-material/Description';
 import FilterPopOver from 'src/layouts/dashboard/header/FilterPopOver';
 import DatasetLinkedIcon from '@mui/icons-material/DatasetLinked';
 import DatasetIcon from '@mui/icons-material/Dataset';
 import AddIcon from '@mui/icons-material/Add';
+import moment from 'moment';
+
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { formatOrderTypeDataStrucutre } from 'src/utils/formatOrderTypeDataStrucutre';
 function descendingComparator(a, b, orderBy) {
@@ -138,9 +150,13 @@ export default function InventoryTable({
 
   const currentRole = AuthService.getCurrentRoleInLocal();
 
+  const storesDetails = useRecoilValue(fdSelectedStoreDetailsState);
+  const isVisibleFD =
+    storesDetails?.activeIn?.includes?.(SWIGGY) || storesDetails?.activeIn?.includes?.(ZOMATO);
+
   const [isHover, setIsHover] = useState(false);
-  const selectedUser =  !isEmpty(selected) ? selected.indexOf(productId) !== -1 : false ;
-  
+  const selectedUser = !isEmpty(selected) ? selected.indexOf(productId) !== -1 : false;
+
   const mouseEnterFunction = () => {
     setIsHover(true);
   };
@@ -152,6 +168,7 @@ export default function InventoryTable({
     setCurrentProduct(e);
     setOpenIngredientsDialog(true);
   };
+
   const handleOpenAddonDialog = (e) => {
     if (isEmpty(addonList)) {
       navigate(PATH_DASHBOARD.inventory.addon, { replace: true });
@@ -189,6 +206,11 @@ export default function InventoryTable({
     return get(counter, 'name', '-');
   };
   useEffect(() => {}, [selectedUser]);
+
+  const activeFDIcon = row?.FDSettings?.turnOnAt
+    ? row?.FDSettings?.turnOnAt <= moment().unix() * 1000
+    : row?.FDSettings?.available;
+
   return (
     <TableRow
       onMouseEnter={mouseEnterFunction}
@@ -237,10 +259,11 @@ export default function InventoryTable({
             {tag}
           </Label>
         )}
-        <Typography variant="subtitle2" noWrap>
+        <Typography variant="subtitle2" noWrap sx={{ display: 'flex', alignItems: 'center' }}>
           {truncate(name)}
+
           <Label
-            sx={{ ml: 2 }}
+            sx={{ ml: 2, width: 75 }}
             color={
               (status === StatusConstants.INACTIVE && 'error') ||
               (status === StatusConstants.ACTIVE && 'success') ||
@@ -249,6 +272,7 @@ export default function InventoryTable({
           >
             {status && sentenceCase(status)}
           </Label>
+
           {!isEmpty(attributes) && (
             <FilterPopOver
               IconStyle={{
@@ -317,10 +341,23 @@ export default function InventoryTable({
               )}
             </FilterPopOver>
           )}
-        </Typography>{' '}
+
+          {get(row, 'FDSettings') && isVisibleFD && (
+            <Tooltip title={activeFDIcon ? 'Enabled' : 'Disabled'}>
+              <img
+                src={
+                  activeFDIcon
+                    ? '/assets/swiggy-zomato-logo.svg'
+                    : '/assets/swiggy-zomato-logo-disabled.svg'
+                }
+                style={{ width: 23, height: 23, marginLeft: 15 }}
+              />
+            </Tooltip>
+          )}
+        </Typography>
       </TableCell>
       <TableCell align={stockMonitor ? 'right' : 'left'}>
-        {stockMonitor ? stockQuantity : '⚠️Monitoring not enabled'}
+        {stockMonitor ? toFixedIfNecessary(Number(stockQuantity), 2) : '⚠️ Monitoring not enabled'}
       </TableCell>
       <TableCell align="left">{formatAmountToIndianCurrency(price)}</TableCell>
       {ROLES_WITHOUT_STORE_STAFF.includes(currentRole) && (

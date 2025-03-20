@@ -119,13 +119,27 @@ const PRODUCTS_API = {
       );
     });
   },
+  getItemsProductList() {
+    return new Promise((resolve, reject) => {
+      APIService.request(
+        {
+          url: `${API}/api/v1/POS/merchant/FD/item-names`,
+          method: 'GET',
+        },
+        handleCallback(resolve, reject)
+      );
+    });
+  },
   getInventoryProducts(options) {
-    const { page, size, category, stockMonitor, status, prodName, counterId } = options;
+    const { page, size, category, stockMonitor, status, prodName, counterId, isOnline } = options;
     let query = '';
     if (status) {
       forEach(status, (value) => {
         query += `&status=${value}`;
       });
+    }
+    if (isOnline) {
+      query += `&isOnline=${isOnline}`;
     }
     if (stockMonitor) {
       forEach(stockMonitor, (value) => {

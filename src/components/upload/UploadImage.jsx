@@ -1,7 +1,7 @@
 import { RHFUploadSingleFile } from './RHFUpload';
 import { useCallback } from 'react';
 
-const UploadImage = ({ setValue, values, isEdit, name = 'images' }) => {
+const UploadImage = ({ setValue, values, isEdit, name = 'images', isMiniSize, acceptTypes }) => {
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const imageFile = acceptedFiles[0]; // Get the first image file
@@ -23,9 +23,12 @@ const UploadImage = ({ setValue, values, isEdit, name = 'images' }) => {
         onDrop={handleDrop}
         onUpload={() => console.log('ON UPLOAD')}
         type="image"
-        accept={{
-          'image/*': [],
-        }}
+        accept={
+          acceptTypes || {
+            'image/*': [],
+          }
+        }
+        isMiniSize={isMiniSize}
       />
     </>
   );

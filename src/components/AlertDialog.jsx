@@ -1,8 +1,10 @@
+import { LoadingButton } from '@mui/lab';
 import { Button, Card, Dialog, Stack, Typography } from '@mui/material';
-import { get } from 'lodash';
+import { get, set } from 'lodash';
 import React from 'react';
 import { useRecoilState } from 'recoil';
 import { alertDialogInformationState } from 'src/global/recoilState';
+import getClone from 'src/utils/getClone';
 
 export default function AlertDialog() {
   const [alertDialogInformation, setAlertDialogInformation] = useRecoilState(
@@ -13,6 +15,12 @@ export default function AlertDialog() {
 
   const onClose = () => {
     setAlertDialogInformation({ open: false });
+  };
+
+  const onLoading = (status) => {
+    const cloneAlertDialogInformation = getClone(alertDialogInformation);
+    set(cloneAlertDialogInformation, 'actions.primary.loading', status);
+    setAlertDialogInformation(cloneAlertDialogInformation);
   };
 
   return (
@@ -32,15 +40,16 @@ export default function AlertDialog() {
           >
             {get(secondary, 'text')}
           </Button>
-          <Button
+          <LoadingButton
             sx={{ ...(primary?.sx || {}) }}
-            onClick={() => {
-              primary?.onClick?.(onClose);
+            onClick={(event) => {
+              primary?.onClick?.(onClose, onLoading, event);
             }}
             variant="contained"
+            loading={get(primary, 'loading')}
           >
             {get(primary, 'text')}
-          </Button>
+          </LoadingButton>
         </Stack>
       </Card>
     </Dialog>

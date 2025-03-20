@@ -1,7 +1,7 @@
 import { PaymentStatusConstants, PURCHASE_ORDER_STATUS, STORE_PURCHASE_ORDER_STATUS } from 'src/constants/AppConstants';
 
 const statusColor = (status) => {
-  if (status === PaymentStatusConstants.COMPLETED) {
+  if (status === PaymentStatusConstants.COMPLETED || status === PaymentStatusConstants.SUCCESS) {
     return 'success';
   } else if (status === PaymentStatusConstants.FAILED) {
     return 'error';

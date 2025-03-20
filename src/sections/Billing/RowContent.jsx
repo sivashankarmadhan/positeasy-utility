@@ -21,44 +21,48 @@ const statusColor = (status) => {
   } else return 'info';
 };
 
-const RowContent = ({ title, value, isChip, isLabel = false, icon }) => {
+const RowContent = ({ title, value, isChip, isLabel = false, icon, noPx }) => {
   return (
     <Stack
       sx={{ width: '100%', justifyContent: 'space-between' }}
       flexDirection="row"
       alignItems="center"
-      px={2}
+      px={noPx ? 0 : 2}
     >
       <Box sx={{ opacity: 0.5, fontSize: '14px', width: '55%' }}>{title}</Box>
 
       <Stack flexDirection="row" alignItems="center" gap={1.5}>
         {icon}
 
-        {!isChip ? (
-          <Box sx={{ fontSize: '14px', justifyContent: 'end', fontWeight: 'bold' }}>
-            <OverflowTruncate name={value || '--'} />
-          </Box>
-        ) : isLabel ? (
-          <Label
-            capitalize={false}
-            variant="soft"
-            color={statusColor(value)}
-            sx={{ fontSize: '13px' }}
-          >
-            {`${value || 'Status not found'}`}
-          </Label>
-        ) : (
-          <Chip
-            size="small"
-            color={statusColor(value)}
-            sx={{
-              ml: 0.5,
-              fontSize: '11px',
-              fontWeight: 600,
-              '&.MuiChip-root': { borderRadius: '4px' },
-            }}
-            label={`${value || 'Status not found'}`}
-          />
+        {!icon && (
+          <>
+            {!isChip ? (
+              <Box sx={{ fontSize: '14px', justifyContent: 'end', fontWeight: 'bold' }}>
+                <OverflowTruncate name={value || '--'} />
+              </Box>
+            ) : isLabel ? (
+              <Label
+                capitalize={false}
+                variant="soft"
+                color={statusColor(value)}
+                sx={{ fontSize: '13px' }}
+              >
+                {`${value || 'Status not found'}`}
+              </Label>
+            ) : (
+              <Chip
+                size="small"
+                color={statusColor(value)}
+                sx={{
+                  ml: 0.5,
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  '&.MuiChip-root': { borderRadius: '4px' },
+                }}
+                label={`${value || 'Status not found'}`}
+              />
+            )}
+          </>
         )}
       </Stack>
     </Stack>

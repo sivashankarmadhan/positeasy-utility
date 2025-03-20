@@ -14,7 +14,6 @@ const UnitsRow = ({
   newProduct,
   addMoreUnits,
   index,
-  editMode,
   fieldName,
   isProfitLossMode,
   isNotStaff,
@@ -22,6 +21,7 @@ const UnitsRow = ({
   getValues,
   setValue,
   watch,
+  editMode,
 }) => {
   const watchOfferPrice = watch(`${fieldName}.offerPrice`);
   const watchDiscount = watch(`${fieldName}.discount`);

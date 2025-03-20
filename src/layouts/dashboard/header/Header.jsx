@@ -38,12 +38,16 @@ import { useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   ALL_CONSTANT,
+  FDNavigateLink,
   hideScrollbar,
+  INVENTORY,
   ROLES_DATA,
   ROLES_WITHOUT_STORE_STAFF,
   RouteName,
   SCAN_QR_CONSTANT,
+  SWIGGY,
   VendorsAndPurchaseSections,
+  ZOMATO,
 } from 'src/constants/AppConstants';
 import {
   allConfiguration,
@@ -57,6 +61,10 @@ import {
   stores,
   qrCheck,
   cart,
+  isPublishFDState,
+  fdSelectedStoreDetailsState,
+  storeNameState,
+  storeReferenceState,
 } from 'src/global/recoilState';
 import AuthService from 'src/services/authService';
 import STORES_API from 'src/services/stores';
@@ -78,6 +86,15 @@ import getTerminalsByStoreId from 'src/helper/getTerminalsByStoreId';
 import getFirstTerminalIdInAll from 'src/helper/getFirstTerminalId';
 import { useParams } from 'react-router';
 import SettingServices from 'src/services/API/SettingServices';
+import { ErrorConstants } from 'src/constants/ErrorConstants';
+import ONLINE_STORES from 'src/services/onlineStoresServices';
+import toast from 'react-hot-toast';
+import ONLINE_ITEMS from 'src/services/onlineItemsServices';
+import { LoadingButton } from '@mui/lab';
+import DialogComponent from 'src/sections/WhatsappCredits/Dialog';
+import ReactPlayer from 'react-player';
+import moment from 'moment';
+import dayjs from 'dayjs';
 
 const BootstrapInput = styled(InputBase)(({ theme }) => ({
   '& .MuiInputBase-input': {
@@ -134,10 +151,10 @@ export default function Header({ onOpenNav }) {
   const isDashboardOrReport = topName === 'dashboard' || reportPath === 'report';
   const isCurrentStoreAll = selectedStore === ALL_CONSTANT.ALL;
   const activeLink = useRecoilValue(breadcrumbData);
-  const {isQrState} = useRecoilState(qrCheck);
+  const { isQrState } = useRecoilState(qrCheck);
   const setBreadcrumbActiveLink = useSetRecoilState(breadcrumbData);
 
-  console.log('location', location, params);
+  const isInventory = location.pathname.includes(INVENTORY);
 
   const offlineHoldOnList = useRecoilValue(offlineHoldOnListState);
   const [selectedHoldId, setSelectedHoldId] = useRecoilState(selectedHoldIdState);
@@ -148,12 +165,14 @@ export default function Header({ onOpenNav }) {
 
   const configuration = useRecoilState(allConfiguration)[0];
 
+  const [isPublishFD, setIsPublishFD] = useRecoilState(isPublishFDState);
+  const [publishLoading, setPublishLoading] = useState(false);
 
   const featureSettings = get(configuration, 'featureSettings', {});
   const isShowBillng = get(featureSettings, 'isShowBillng', false);
 
-
-  
+  const [openPublishDialog, setOpenPublishDialog] = useState(false);
+  const [isWentToPublishSite, setIsWentToPublishSite] = useState(false);
 
   // const getTerminalByStoreId = (storeId) => {
   //   if (!storeId) return [];
@@ -202,6 +221,7 @@ export default function Header({ onOpenNav }) {
   const isMobile = useMediaQuery('(max-width:600px)');
   const isTab = useMediaQuery('(max-width:980px)');
   const isOffset = useOffSetTop(HEADER.H_DASHBOARD_DESKTOP) && !isNavHorizontal;
+  const storeName = useRecoilValue(storeNameState);
 
   const { pathname } = location;
 
@@ -209,6 +229,7 @@ export default function Header({ onOpenNav }) {
 
   const billingPath = PATH_DASHBOARD.sale.billing;
   const viewBillingPath = PATH_DASHBOARD.sale.viewbilling;
+  const storeReference = useRecoilValue(storeReferenceState);
 
   const isEditFlow = !!get(location, 'state.orders');
 
@@ -218,6 +239,10 @@ export default function Header({ onOpenNav }) {
   const isViewBillingPage = pathname === viewBillingPath;
 
   const user = AuthService._getMerchantDetails();
+
+  const storesDetails = useRecoilValue(fdSelectedStoreDetailsState);
+  const isVisibleFD =
+    storesDetails?.activeIn?.includes?.(SWIGGY) || storesDetails?.activeIn?.includes?.(ZOMATO);
 
   const handleOpen = () => {
     executeAfterCheck(() => {
@@ -255,13 +280,8 @@ export default function Header({ onOpenNav }) {
       console.log(e);
     }
   };
-  const getStoreName = (storeId) => {
-    const terminals = find(storesData, (e) => e.storeId === storeId);
-    if (isEmpty(terminals)) return '';
-    return get(terminals, 'storeName');
-  };
-  useEffect(() => {
 
+  useEffect(() => {
     if (!isDashboardOrReport && selectedStore === ALL_CONSTANT.ALL) {
       setSelectedStore(storeLabelList[0]);
       const currentStoreAndTerminal = {
@@ -273,8 +293,7 @@ export default function Header({ onOpenNav }) {
   }, [topName]);
 
   useEffect(() => {
-
-    if(isEmpty(storesData)) getStores();
+    if (isEmpty(storesData)) getStores();
   }, []);
   useEffect(() => {
     window.addEventListener('online', () => setNetworkStatus(true));
@@ -295,7 +314,6 @@ export default function Header({ onOpenNav }) {
   }, [selectedStore, storesData, isQrState]);
 
   useEffect(() => {
-
     // if (!selectedStore) setSelectedStore(storeLabelList[0]);
     // if (selectedStore) setSelectedTerminal(getTerminalByStoreId(selectedStore));
 
@@ -330,9 +348,36 @@ export default function Header({ onOpenNav }) {
     getPathName(currentLocation);
   }, [currentLocation]);
 
-
   const { role } = ObjectStorage.getItem(ROLE_STORAGE.ROLE) || {};
   const isManager = role === ROLES_DATA.store_manager.role;
+
+  const getStoreName = (storeId) => {
+    const terminals = find(storesData, (e) => e.storeId === storeId);
+    if (isEmpty(terminals)) return '';
+    return get(terminals, 'storeName');
+  };
+
+  const handlePublish = async (e) => {
+    try {
+      const formattedDate = dayjs().format('YYYY-MM-DD[T]HH:mm:ss');
+      setPublishLoading(true);
+      await ONLINE_STORES.getStorePublishTime({
+        storeReference: storeReference,
+        publishTime: formattedDate,
+      });
+      setIsPublishFD(false);
+      ObjectStorage.setItem(StorageConstants.IS_PUBLISH_FD, { data: false });
+      setOpenPublishDialog(false);
+      setTimeout(() => {
+        setIsWentToPublishSite(false);
+      }, 100);
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.errorResponse?.message || ErrorConstants.SOMETHING_WRONG);
+    } finally {
+      setPublishLoading(false);
+    }
+  };
 
   const renderStores = (
     <>
@@ -434,6 +479,8 @@ export default function Header({ onOpenNav }) {
               >
                 {!isSettingScreen && <MenuItem value={ALL_CONSTANT.ALL}>All</MenuItem>}
                 {isQrEnable && <MenuItem value={SCAN_QR_CONSTANT.SCAN_QR}>Scan QR</MenuItem>}
+                {isVisibleFD && <MenuItem value={SCAN_QR_CONSTANT.SWIGGY}>Swiggy</MenuItem>}
+                {isVisibleFD && <MenuItem value={SCAN_QR_CONSTANT.ZOMATO}>Zomato</MenuItem>}
                 {map(
                   selectedStore
                     ? getTerminalsByStoreId({ storeId: selectedStore, storesData })
@@ -576,19 +623,39 @@ export default function Header({ onOpenNav }) {
         <Stack flexDirection={'row'} sx={{ display: 'flex', alignItems: 'center' }}>
           {!(isMobile || isTab) && !isManager && (
             <>
-       {isShowBillng ?  <Button
-                variant="contained"
-                onClick={() => {
-                  executeAfterCheck(() => {
-                    setSelectedHoldId(null);
-                    setaddOrder([]);
-                    navigate(PATH_DASHBOARD.sale.billing);
-                  });
-                }}
-                disabled={!selectedHoldId && isBillingPage  }
-              >
-                Create Billing
-              </Button>:""}
+              {isShowBillng && !isInventory && (
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    executeAfterCheck(() => {
+                      setSelectedHoldId(null);
+                      setaddOrder([]);
+                      navigate(PATH_DASHBOARD.sale.billing);
+                    });
+                  }}
+                  disabled={!selectedHoldId && isBillingPage}
+                >
+                  Create Billing
+                </Button>
+              )}
+              {isInventory && (
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: 'green',
+                    '&:hover': {
+                      backgroundColor: 'green',
+                      boxShadow: 'none',
+                    },
+                  }}
+                  onClick={() => {
+                    setOpenPublishDialog(true);
+                  }}
+                  disabled={!isPublishFD}
+                >
+                  Publish
+                </Button>
+              )}
               &nbsp; &nbsp;
             </>
           )}
@@ -664,6 +731,27 @@ export default function Header({ onOpenNav }) {
     }
   }, [location, selectedStore]);
 
+  const handlePublishAndProceed = async (e) => {
+    try {
+      setPublishLoading(true);
+      const res = await ONLINE_ITEMS.publishFD({
+        storeId: selectedStore,
+        storeReference: storeReference,
+        storeName,
+        actionType: 'CREATE_CATALOGUE',
+      });
+      if (get(res, 'data.recResponse.status') === 'success') {
+        setIsWentToPublishSite(true);
+        window.open(FDNavigateLink);
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.errorResponse?.message || ErrorConstants.SOMETHING_WRONG);
+    } finally {
+      setPublishLoading(false);
+    }
+  };
+
   return (
     <AppBar
       sx={{
@@ -703,6 +791,78 @@ export default function Header({ onOpenNav }) {
       >
         {renderContent}
       </Toolbar>
+
+      <DialogComponent
+        open={openPublishDialog}
+        title={isWentToPublishSite ? 'Did you publish ?' : `Publish instructions`}
+        customMinWidth={isMobile ? 370 : 400}
+        onClose={
+          isWentToPublishSite
+            ? null
+            : () => {
+                setOpenPublishDialog(false);
+              }
+        }
+      >
+        <Stack>
+          <ReactPlayer
+            controls
+            url={'/assets/videos/FD_publish.mov'}
+            width={'100%'}
+            height={'260px'}
+          />
+
+          {isWentToPublishSite ? (
+            <Stack flexDirection="row" gap={2} width="100%">
+              <Button
+                variant="outlined"
+                sx={{
+                  mt: 2,
+                  width: '50%',
+                }}
+                onClick={() => {
+                  setOpenPublishDialog(false);
+                  setIsWentToPublishSite(false);
+                }}
+              >
+                No
+              </Button>
+              <LoadingButton
+                variant="contained"
+                sx={{
+                  mt: 2,
+                  width: '50%',
+                  backgroundColor: 'primary',
+                  '&:hover': {
+                    backgroundColor: 'primary',
+                    boxShadow: 'none',
+                  },
+                }}
+                onClick={handlePublish}
+                loading={publishLoading}
+              >
+                Yes
+              </LoadingButton>
+            </Stack>
+          ) : (
+            <LoadingButton
+              variant="contained"
+              sx={{
+                mt: 2,
+                backgroundColor: 'primary',
+                '&:hover': {
+                  backgroundColor: 'primary',
+                  boxShadow: 'none',
+                },
+              }}
+              onClick={handlePublishAndProceed}
+              loading={publishLoading}
+            >
+              Publish and proceed
+            </LoadingButton>
+          )}
+        </Stack>
+      </DialogComponent>
     </AppBar>
   );
 }

@@ -84,9 +84,6 @@ export const PaymentPerson = {
   MRS: 'MRS',
 };
 
-
-export const PaymentModeType =['cash', 'card', 'upi', 'zomato', 'swiggy']
-
 export const BookingTypeCart = [{ name: 'website' }, { name: 'online' }];
 
 export const BookingType = {
@@ -241,7 +238,20 @@ export const RouteName = {
   rawMaterials: 'Raw Materials',
   table: 'Table',
   whatsappCredits: 'Whatsapp',
+  onlineCategory: 'Online Category',
+  optionsGroup: 'Options Group',
+  options: 'Options',
+  online: 'Online',
+  onlineStores: 'Online stores',
+  add: 'Add Product',
+  edit: 'Edit Product',
+  'add-online': 'Add Online Product',
+  'edit-online': 'Edit Online Product',
+  requestLogs: 'Request logs',
+  orders: 'Orders',
+  taxesAndCharges: 'Online Taxes And Charges',
 };
+
 export const ReportAnalyticsSections = [
   {
     title: 'Orders',
@@ -312,6 +322,7 @@ export const CompleteConstants = {
 
 export const PaymentStatusConstants = {
   COMPLETED: 'COMPLETED',
+  SUCCESS: 'success',
   FAILED: 'FAILED',
   PENDING: 'PENDING',
   CANCELLED: 'CANCELLED',
@@ -479,6 +490,8 @@ export const UNIT_TYPES = [
   },
 ];
 
+export const SOUND_CONFIG_ARRAY = [1, 2, 3, 4, 5];
+
 export const REQUIRED_CONSTANTS = {
   CATEGORY: 'Category is required',
   STORE_ID: 'Store Id is required',
@@ -616,8 +629,8 @@ export const CHANGE_ORDER_STATUS_TYPES_SHOW = [
 ];
 export const ORDER_STATUS_VALUES = [
   'COMPLETED',
-  'ORDER-PLACED',
-  'READY-TO-SERVE',
+  'ORDER_PLACED',
+  'READY_TO_SERVE',
   'DELIVERED',
   'PENDING',
   'CANCELLED',
@@ -626,14 +639,14 @@ export const ORDER_STATUS_VALUES = [
 ];
 
 export const STORE_PURCHASE_CONSTANTS = {
-ADD_PRODUCT : "Please add product or raw material",
-ON_EDIT: "ON_EDIT",
-OPEN : "OPEN",
-PENDING: "PENDING",
-APPROVED: "APPROVED",
-STORE: "store",
-REJECTED: "REJECTED",
-}
+  ADD_PRODUCT: 'Please add product or raw material',
+  ON_EDIT: 'ON_EDIT',
+  OPEN: 'OPEN',
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  STORE: 'store',
+  REJECTED: 'REJECTED',
+};
 
 export const ORDER_STATUS_COLORS = {
   COMPLETED: '#47C61B',
@@ -1419,11 +1432,6 @@ export const ExpenseTableColumns = [
   },
 ];
 
-export const PAYMENT_BY_CONSTANT = [
-  { label: "Radio Button", value: "radio" },
-  { label: "Select Box", value: "select" },
-];
-
 export const GstTableColumns = [
   {
     title: 'Payment ID',
@@ -1507,6 +1515,7 @@ export const StockTableColumns = [
     field: 'newStockQuantity',
   },
 ];
+
 export const StockSummaryReportTableColumns = [
   {
     title: 'Name',
@@ -1883,6 +1892,163 @@ export const MaterialTableColumns = [
     style: { minWidth: 50, position: 'sticky', right: 0, zIndex: 99 },
   },
 ];
+export const onlineCategoryTableColumns = [
+  {
+    label: 'Name',
+    id: 'name',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Description',
+    id: 'description',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Parent category',
+    id: 'parentCategory',
+    alignRight: false,
+    style: { minWidth: 150 },
+  },
+  {
+    label: 'Items Associated',
+    id: 'itemsAssociated',
+    alignRight: false,
+    style: { minWidth: 150 },
+  },
+  // {
+  //   label: 'Translation',
+  //   id: 'translation',
+  //   alignRight: false,
+  //   style: { minWidth: 120 },
+  // },
+  {
+    label: 'Sort order',
+    id: 'sortOrder',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Timings name',
+    id: 'timingsName',
+    alignRight: false,
+    style: { minWidth: 150 },
+  },
+  {
+    label: 'Timings',
+    id: 'timings',
+    alignRight: false,
+    style: { minWidth: 120 },
+  },
+  {
+    label: 'Image',
+    id: '',
+    alignRight: false,
+    style: { minWidth: 50, position: 'sticky', right: 0, zIndex: 99 },
+  },
+];
+export const optionsGroupTableColumns = [
+  {
+    label: 'Name',
+    id: 'name',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Description',
+    id: 'description',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Items Associated',
+    id: 'itemsAssociated',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Minimum Select',
+    id: 'minSelectable',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Maximum Select',
+    id: 'maxSelectable',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  // {
+  //   label: 'Translation',
+  //   id: 'translation',
+  //   alignRight: false,
+  //   style: { minWidth: 120 },
+  // },
+  {
+    label: 'Sort order',
+    id: 'sortOrder',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+];
+export const optionsTableColumns = [
+  {
+    label: 'Name',
+    id: 'name',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Description',
+    id: 'description',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Options Group',
+    id: 'options',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Weight',
+    id: 'weight',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Food Type',
+    id: 'foodType',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+
+  {
+    label: 'Price',
+    id: 'price',
+    alignRight: false,
+    style: { minWidth: 120 },
+  },
+  // {
+  //   label: 'Translation',
+  //   id: 'translation',
+  //   alignRight: false,
+  //   style: { minWidth: 120 },
+  // },
+  {
+    label: 'Recommended',
+    id: 'recommended',
+    alignRight: false,
+    style: { minWidth: 120 },
+  },
+  {
+    label: 'Image',
+    id: '',
+    alignRight: false,
+    style: { minWidth: 50, position: 'sticky', right: 0, zIndex: 99 },
+  },
+];
 export const MaterialUnitsTableColumns = [
   {
     label: 'Name',
@@ -2036,12 +2202,14 @@ export const PRINT_CONSTANT = {
   POS_LAN_72MM: 'POS_LAN_72MM',
 };
 export const ALL_CONSTANT = { ALL: 'all' };
-export const SCAN_QR_CONSTANT = { SCAN_QR: 'scanQR' };
+export const SCAN_QR_CONSTANT = { SCAN_QR: 'scanQR', SWIGGY: 'swiggy', ZOMATO: 'zomato' };
 
 export const NAVIGATION_STATE_KEY = { ADD_PRODUCT: 'addProduct', ADD_MATERIAL: 'addMaterial' };
 export const DATE_TIME_FORMAT_ATTENDANCE = {
   DATE_FORMAT: 'DD/MM/YYYY',
   TIME_FORMAT: 'HH:mm',
+  HH_MM_SS: 'hh:mm:ss A',
+  HH_MM: 'hh:mm A',
 };
 export const NOTIFICATION_CONFIGURATIONS = {
   DAILY: 'daily',
@@ -2380,6 +2548,13 @@ export const IMPORT_EXPORT_TOOLBAR = {
   IMPORT_INVENTORY: 'import_inventory',
   REPORT: 'report',
   EXPORT_MENU: 'export_menu',
+  IMPORT_ONLINE_STOCK: 'import_online_stock',
+};
+
+export const IMPORT_EXPORT_TOOLBAR_TITLE = {
+  INVENTORY: 'inventory',
+  PARTNER_INVENTORY: 'partner inventory',
+  ONLINE_STOCK: 'online stock',
 };
 
 export const ROWS_PER_PAGE = 25;
@@ -2485,7 +2660,7 @@ export const PURCHASE_ORDER_STATUS = {
 };
 export const STORE_PURCHASE_ORDER_STATUS = {
   OPEN: 'OPEN',
-  ACKNOWLEDGE: "ACKNOWLEDGE",
+  ACKNOWLEDGE: 'ACKNOWLEDGE',
   TRANSIT: 'TRANSIT',
   RECEIVED: 'RECEIVED',
   BILLED: 'BILLED',
@@ -2717,7 +2892,6 @@ export const SCAN_QR_ORDER_STATUS_TYPES = {
   COMPLETED: 'COMPLETED',
 };
 
-
 export const SCAN_QR_PAYMENT_MODE = {
   CASH: 'CASH',
   CARD: 'CARD',
@@ -2745,6 +2919,71 @@ export const PaymentModeTypes = [
     value: 'SWIGGY',
   },
 ];
+
+export const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+export const daysOfObject = {
+  SUNDAY: 'sunday',
+  MONDAY: 'monday',
+  TUESDAY: 'tuesday',
+  WEDNESDAY: 'wednesday',
+  THURSDAY: 'thursday',
+  FRIDAY: 'friday',
+  SATURDAY: 'saturday',
+};
+
+export const ALWAYS_AVAILABLE = 'Always available';
+
+export const RequestFDLogsTableColumns = [
+  {
+    title: 'Date',
+    field: 'createdAt',
+  },
+  {
+    title: 'Reference ID',
+    field: 'referenceId',
+  },
+  {
+    title: 'Action',
+    field: 'action',
+  },
+  {
+    title: 'Comment',
+    field: 'comment',
+  },
+  {
+    title: 'Status',
+    field: 'status',
+  },
+  {
+    title: 'Response',
+    field: 'response',
+  },
+];
+
+export const FDOrdersColumns = [
+  {
+    title: 'Date',
+    field: 'createdAt',
+  },
+  {
+    title: 'UP order ID',
+    field: 'UP_ref_orderId',
+  },
+  {
+    title: 'Status',
+    field: 'status',
+  },
+  {
+    title: 'Channel',
+    field: 'channel',
+  },
+  {
+    title: 'Order amount (₹)',
+    field: 'orderAmount',
+  },
+];
+
 export const DEFAULT_BLUETOOTH_PRINT_CONNECTION = {
   DEFAULT: 'DEFAULT',
   COUNTER_MODE: 'COUNTER_MODE',
@@ -2756,6 +2995,110 @@ export const QR_LINK = {
   PUBLIC_POSITEASY: 'https://public.positeasy.in',
 };
 export const defaultOrderTypes = [OrderTypeConstants.DineIn, OrderTypeConstants.Parcel];
+
+export const INVENTORY = 'inventory';
+export const SWIGGY = 'swiggy';
+export const ZOMATO = 'zomato';
+export const FDNavigateLink = 'https://atlas-pos-int.urbanpiper.com/locations';
+export const ONLINE = 'online';
+export const ENABLE = 'enable';
+export const DISABLE = 'disable';
+export const ERROR = 'error';
+export const ACTIVE = 'active';
+
+export const ElementNames = {
+  ENABLE_ONLINE_STORE_DATE_AND_TIME_FOR_OPTION: 'enable-online-store-date-and-time-for-option',
+  DISABLE_ONLINE_ITEM_DATE_AND_TIME: 'disable-online-item-date-and-time',
+};
+
+export const FD_STATUS_COLOR = {
+  PLACED: 'PLACED',
+  FOOD_READY: 'FOOD READY',
+  ACKNOWLEDGED: 'ACKNOWLEDGED',
+  COMPLETED: 'COMPLETED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+};
+
+export const FD_STATUS_LABEL = [
+  {
+    label: 'PLACED',
+    id: 'PLACED',
+  },
+  {
+    label: 'FOOD READY',
+    id: 'FOOD READY',
+  },
+  {
+    label: 'ACKNOWLEDGED',
+    id: 'ACKNOWLEDGED',
+  },
+  {
+    label: 'COMPLETED',
+    id: 'COMPLETED',
+  },
+  {
+    label: 'DELIVERED',
+    id: 'DELIVERED',
+  },
+  {
+    label: 'CANCELLED',
+    id: 'CANCELLED',
+  },
+];
+
+export const onlineTaxTableColumns = [
+  {
+    label: '',
+    id: '',
+    alignRight: false,
+    style: { minWidth: 50 },
+  },
+  {
+    label: 'Title',
+    id: 'title',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Percentage',
+    id: 'percentage',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Description',
+    id: 'description',
+    alignRight: false,
+    style: { minWidth: 130 },
+  },
+  {
+    label: 'Associated items',
+    id: 'associatedItems',
+    alignRight: false,
+    style: { minWidth: 120 },
+  },
+];
+
+export const requiredDescriptionKeywords = ['meals', 'platter', 'combo', 'box', 'thalis'];
+
+export const restrictedKeywords = [
+  'swiggy',
+  'zomato',
+  'bogo',
+  'off',
+  'promo',
+  'discount',
+  'free',
+  'freebie',
+  'Buy',
+  'offer',
+  'promotion',
+  'sale',
+  'beer',
+  'rum',
+  'bira',
+];
 export const BILLING_SCAN_KEYS = {
   PRODUCT_ID: 'productId',
   BARCODE: 'barcode',

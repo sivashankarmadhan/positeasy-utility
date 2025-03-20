@@ -42,4 +42,5 @@ export const StorageConstants = {
   SELECT_DATE: 'select_date',
   AUTO_ADD_TO_STOCKS: 'AUTO_ADD_TO_STOCKS',
   ORDER_TYPE: 'order_type',
+  IS_PUBLISH_FD: 'IS_PUBLISH_FD',
 };

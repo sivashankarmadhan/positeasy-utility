@@ -31,7 +31,15 @@ UploadSingleFile.propTypes = {
   sx: PropTypes.object,
 };
 
-export default function UploadSingleFile({ error = false, file, helperText, type, sx, ...other }) {
+export default function UploadSingleFile({
+  error = false,
+  file,
+  helperText,
+  type,
+  sx,
+  isMiniSize,
+  ...other
+}) {
   const { getRootProps, getInputProps, isDragActive, isDragReject, fileRejections } = useDropzone({
     multiple: false,
     ...other,
@@ -39,22 +47,9 @@ export default function UploadSingleFile({ error = false, file, helperText, type
 
   return (
     <Box sx={{ width: '100%', ...sx }}>
-      <DropZoneStyle
-        {...getRootProps()}
-        sx={{
-          ...(isDragActive && { opacity: 0.72 }),
-          ...((isDragReject || error) && {
-            color: 'error.main',
-            borderColor: 'error.light',
-            bgcolor: 'error.lighter',
-          }),
-          ...(file && {
-            padding: '12% 0',
-          }),
-        }}
-      >
+      <DropZoneStyle {...getRootProps()}>
         <input {...getInputProps()} />
-        <BlockContent type={type} file={file} />
+        <BlockContent type={type} file={file} isMiniSize={isMiniSize} />
         {file && (
           <img
             alt="file preview"
@@ -65,7 +60,7 @@ export default function UploadSingleFile({ error = false, file, helperText, type
               borderRadius: 1,
               position: 'absolute',
               width: '100%',
-              height: '100%',
+              height: isMiniSize ? 65 : '100%',
               objectFit: 'contain',
             }}
           />

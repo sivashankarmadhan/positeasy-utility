@@ -1,11 +1,14 @@
 import { Button, Card, Dialog, Stack, Typography, useTheme } from '@mui/material';
-import { get } from 'lodash';
-import React, { useState } from 'react';
+import { forEach, get, isEmpty } from 'lodash';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { IMPORT_EXPORT_TOOLBAR } from 'src/constants/AppConstants';
+import { IMPORT_EXPORT_TOOLBAR, IMPORT_EXPORT_TOOLBAR_TITLE } from 'src/constants/AppConstants';
 import { formatSizeUnits } from 'src/utils/formatNumber';
 import { CSV_Import } from 'src/constants/CSVInventoryConstant';
 import { CSVLink, CSVDownload } from 'react-csv';
+import PRODUCTS_API from 'src/services/products';
+import ONLINE_STORES from 'src/services/onlineStoresServices';
+import { ErrorConstants } from 'src/constants/ErrorConstants';
 
 export default function FileUploadDialog(props) {
   const {
@@ -20,6 +23,8 @@ export default function FileUploadDialog(props) {
 
   const [dragOver, setDragOver] = useState(false);
   const [draggedFile, setDraggedFile] = useState(null);
+
+  const [onlineStockForCurrentStock, setOnlineStockForCurrentStock] = useState({});
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -46,6 +51,30 @@ export default function FileUploadDialog(props) {
       toast.error('Upload one file at a time');
     }
   };
+
+  const getOnlineStockForCurrentStock = async () => {
+    try {
+      const res = await ONLINE_STORES.getOnlineStockForCurrentStock();
+      const formatRes = [['Product ID', 'Name', 'Current stock']];
+      forEach(get(res, 'data'), (_item) => {
+        formatRes.push([
+          get(_item, 'productId'),
+          get(_item, 'FDSettings.title'),
+          get(_item, 'FDSettings.current_stock'),
+        ]);
+      });
+      setOnlineStockForCurrentStock(formatRes);
+    } catch (error) {
+      toast.error(error?.errorResponse?.message || ErrorConstants.SOMETHING_WRONG);
+    }
+  };
+
+  useEffect(() => {
+    if (open) {
+      getOnlineStockForCurrentStock();
+    }
+  }, [open]);
+
   return (
     <Dialog open={open} sx={{ width: '100%' }}>
       <Card
@@ -73,9 +102,11 @@ export default function FileUploadDialog(props) {
             <Typography variant="subtitle1">
               Upload &nbsp;
               {forUpload === IMPORT_EXPORT_TOOLBAR.IMPORT_INVENTORY
-                ? 'Inventory'
+                ? IMPORT_EXPORT_TOOLBAR_TITLE.INVENTORY
                 : forUpload === IMPORT_EXPORT_TOOLBAR.PARTNER_INVENTORY
-                ? 'Partner Inventory'
+                ? IMPORT_EXPORT_TOOLBAR_TITLE.PARTNER_INVENTORY
+                : forUpload === IMPORT_EXPORT_TOOLBAR.IMPORT_ONLINE_STOCK
+                ? IMPORT_EXPORT_TOOLBAR_TITLE.ONLINE_STOCK
                 : ''}
             </Typography>
             {forUpload === IMPORT_EXPORT_TOOLBAR.IMPORT_INVENTORY && (
@@ -83,6 +114,12 @@ export default function FileUploadDialog(props) {
                 Download format
               </CSVLink>
             )}
+            {forUpload === IMPORT_EXPORT_TOOLBAR.IMPORT_ONLINE_STOCK &&
+              !isEmpty(onlineStockForCurrentStock) && (
+                <CSVLink filename={'online_stock_format'} data={onlineStockForCurrentStock}>
+                  Download format
+                </CSVLink>
+              )}
           </Stack>
           <label htmlFor="file-input" style={{ cursor: 'pointer', width: '100%' }}>
             <Card

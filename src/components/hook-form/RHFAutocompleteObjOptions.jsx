@@ -17,6 +17,8 @@ export default function RHFAutocompleteObjOptions({
   startAdornment,
   endAdornment,
   disabled,
+  multiple,
+  disabledSearchOnChange,
   ...other
 }) {
   const { control, setValue } = useFormContext();
@@ -26,37 +28,42 @@ export default function RHFAutocompleteObjOptions({
       name={name}
       fullWidth
       control={control}
-      render={({ field, fieldState: { error } }) => (
-        <Autocomplete
-          freeSolo={freeSolo}
-          fullWidth
-          disabled={disabled}
-          {...field}
-          options={options} // Set initial options as an empty array
-          value={field.value || ''} // Set the value from react-hook-form field value
-          onChange={(event, newValue) => {
-            setValue(name, newValue, { shouldValidate: true });
-          }}
-          renderInput={(params) => (
-            <TextField
-              fullWidth
-              onChange={(event) => {
-                setValue(name, { label: event.target.value, id: '' }, { shouldValidate: true });
-              }}
-              label={label}
-              error={!!error}
-              helperText={helperText && error ? helperText : error?.message ? 'required' : ''}
-              {...params}
-              InputProps={{
-                ...params.InputProps,
-                ...(startAdornment ? { startAdornment } : {}),
-                ...(endAdornment ? { endAdornment } : {}),
-              }}
-            />
-          )}
-          {...other}
-        />
-      )}
+      render={({ field, fieldState: { error } }) => {
+        return (
+          <Autocomplete
+            multiple={multiple}
+            freeSolo={freeSolo}
+            fullWidth
+            disabled={disabled}
+            {...field}
+            options={options} // Set initial options as an empty array
+            value={field.value || ''} // Set the value from react-hook-form field value
+            onChange={(event, newValue) => {
+              setValue(name, newValue, { shouldValidate: true });
+            }}
+            renderInput={(params) => (
+              <TextField
+                fullWidth
+                onChange={(event) => {
+                  if (!disabledSearchOnChange) {
+                    setValue(name, { label: event.target.value, id: '' }, { shouldValidate: true });
+                  }
+                }}
+                label={label}
+                error={!!error}
+                helperText={helperText && error ? helperText : error?.message || ''}
+                {...params}
+                InputProps={{
+                  ...params.InputProps,
+                  ...(startAdornment ? { startAdornment } : {}),
+                  ...(endAdornment ? { endAdornment } : {}),
+                }}
+              />
+            )}
+            {...other}
+          />
+        );
+      }}
     />
   );
 }

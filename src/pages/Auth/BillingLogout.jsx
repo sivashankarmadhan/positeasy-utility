@@ -56,11 +56,13 @@ export default function BillingLogout(props) {
     storeId: get(storesData, 'storeId'),
     terminalNumber: get(storesData, 'terminalNumber'),
   };
+
   const removeAccessOptions = {
     storeId: get(storesData, 'storeId'),
     terminalNumber: get(storesData, 'terminalNumber'),
     access: null,
   };
+
   const handleChildDialogOpen = () => {
     setChildDialogOpen(true);
   };

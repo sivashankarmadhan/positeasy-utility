@@ -15,21 +15,23 @@
     font-size: 30px;
     font-weight: bold;
     margin: 0 10px;
-    margin-bottom: 80px;
+    margin-bottom: 30px;
   }
-  
+  .error-header {
+    width: 100%;
+  }
   .error-image {
-    max-width: 100%;
+    width: 25rem;
     height: auto;
   }
   .error-bottom {
     margin-top: 30px ;
+    width: 100%;
   }
   
-  .error-contact {
+  .error-description {
     color: #555;
-    font-size: 16px;
-    max-width: 400px;
+    font-size: 17px;
     padding: 0 15px;
   }
   
@@ -44,6 +46,11 @@
   }
   .error-support {
     margin-bottom: 0;
+    width: 100%;
+  }
+  .error-thanks {
+    font-size: 20px;
+    font-weight: bold;
   }
   .error-number {
     margin-top: 5px;
@@ -54,7 +61,10 @@
     .error-title {
       font-size: 22px;
     }
-    .error-contact {
+    .error-header {
+        width: 20rem;
+      }
+    .error-description {
       font-size: 14px;
     }
     .error-button {
@@ -63,6 +73,14 @@
     }
     .error-support {
         margin-bottom: 0;
+      }
+      .error-image {
+        width: 100%;
+        height: auto;
+      }
+      .error-thanks {
+        font-size: 17px;
+        font-weight: bold;
       }
   }
   

@@ -43,8 +43,6 @@ export default function ViewBillingOrderList(props) {
               }
             }
 
-            console.log('llllll', get(data, 'additionalInfo', []));
-            console.log('orderDetails', get(e, 'productInfo.name'));
             return (
               <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                 <Stack flexDirection={'column'}>
@@ -165,12 +163,13 @@ export default function ViewBillingOrderList(props) {
                     </Stack>
                   )}
                 </Stack>
-                {!isEmpty(get(e, 'addOns')) && (
+                {!isEmpty(get(e, 'addOns.addons')) && (
                   <>
                     <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
                       Addons:
                     </Typography>
-                    {map(get(e, 'addOns'), (h) => (
+
+                    {map(get(e, 'addOns.addons'), (h) => (
                       <Stack flexDirection={'column'}>
                         <Stack
                           flexDirection={'row'}
@@ -181,7 +180,7 @@ export default function ViewBillingOrderList(props) {
                           }}
                         >
                           <Typography variant="caption" sx={{ fontSize: '10px' }}>
-                            {get(h, 'name')}
+                            {get(h, 'name') || get(h, 'title')}
                           </Typography>
                           <Stack flexDirection={'row'}>
                             <Typography variant="caption" sx={{ fontSize: '10px' }}>
@@ -194,7 +193,7 @@ export default function ViewBillingOrderList(props) {
                               variant="caption"
                               sx={{ fontSize: '10px', minWidth: '30px', textAlign: 'right' }}
                             >
-                              {fCurrency(convertToRupee(get(h, 'price')))}
+                              {fCurrency(get(h, 'price'))}
                             </Typography>
                           </Stack>
                         </Stack>

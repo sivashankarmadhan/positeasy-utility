@@ -6,7 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import Slide from '@mui/material/Slide';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { get, isEmpty, map } from 'lodash';
+import { forEach, get, isEmpty, map } from 'lodash';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -15,8 +15,11 @@ import ExcelPreview from './ExcelPreview';
 import { ErrorConstants } from 'src/constants/ErrorConstants';
 import ProductLoader from './ProductLoader';
 import { IMPORT_EXPORT_TOOLBAR } from 'src/constants/AppConstants';
-import { useRecoilValue } from 'recoil';
-import { currentStoreId } from 'src/global/recoilState';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { currentStoreId, isPublishFDState } from 'src/global/recoilState';
+import ONLINE_ITEMS from 'src/services/onlineItemsServices';
+import { SuccessConstants } from 'src/constants/SuccessConstants';
+import useFDPublish from 'src/hooks/useFDPublish';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -29,6 +32,8 @@ export default function FullScreenDialog(props) {
   const [data, setData] = React.useState(null);
   const [formattedData, setFormattedData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { updatePublish } = useFDPublish();
+
   async function convertToJSON(data, type) {
     if (!currentStore) return;
     try {
@@ -38,7 +43,12 @@ export default function FullScreenDialog(props) {
       const headers = isCsv ? data[0] : data[5];
       const jsonData = [];
       for (
-        let i = isCsv ? (IMPORT_EXPORT_TOOLBAR.PARTNER_INVENTORY === forUpload ? 1 : 2) : 7;
+        let i = isCsv
+          ? IMPORT_EXPORT_TOOLBAR.PARTNER_INVENTORY === forUpload ||
+            IMPORT_EXPORT_TOOLBAR.IMPORT_ONLINE_STOCK === forUpload
+            ? 1
+            : 2
+          : 7;
         i < data.length;
         i++
       ) {
@@ -107,6 +117,14 @@ export default function FullScreenDialog(props) {
             GSTInc: get(e, 'GSTInc'),
           });
         }
+
+        if (isCsv && forUpload === IMPORT_EXPORT_TOOLBAR.IMPORT_ONLINE_STOCK) {
+          options.push({
+            ['Product ID']: e?.['Product ID'],
+            Name: e?.['Name'],
+            ['Stock quantity']: e?.['Current stock'],
+          });
+        }
       });
       return { actualData: jsonData, options: options };
     } catch (e) {
@@ -146,9 +164,33 @@ export default function FullScreenDialog(props) {
           handleReset();
         }
       }
+
+      if (isCsv && forUpload === IMPORT_EXPORT_TOOLBAR.IMPORT_ONLINE_STOCK) {
+        const payload = map(
+          get(formattedData, 'options'),
+          ({
+            ['Product ID']: productId,
+            ['Name']: name,
+            ['Stock quantity']: newQuantity,
+            ...rest
+          }) => ({
+            productId,
+            name,
+            newQuantity,
+            ...rest,
+          })
+        );
+        const response = await ONLINE_ITEMS.FDImportCurrentStock(payload);
+        if (response) {
+          toast.success(SuccessConstants.UPDATED_ONLINE_STOCK);
+          await updatePublish();
+          handleReset();
+        }
+      }
       setLoading(false);
       handleClose();
     } catch (e) {
+      setLoading(false);
       console.log(e);
       toast.error(e?.errorResponse?.message || ErrorConstants.SOMETHING_WRONG);
     }
@@ -165,8 +207,9 @@ export default function FullScreenDialog(props) {
   useEffect(() => {
     convertData();
   }, [file, data, currentStore]);
+
   return (
-    <Dialog fullScreen open={open}  TransitionComponent={Transition}>
+    <Dialog fullScreen open={open} TransitionComponent={Transition}>
       <AppBar sx={{ position: 'relative' }}>
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">

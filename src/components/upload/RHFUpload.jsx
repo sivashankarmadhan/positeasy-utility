@@ -44,7 +44,7 @@ RHFUploadSingleFile.propTypes = {
   name: PropTypes.string,
 };
 
-export function RHFUploadSingleFile({ name, ...other }) {
+export function RHFUploadSingleFile({ name, isMiniSize, ...other }) {
   const { control } = useFormContext();
 
   return (
@@ -64,6 +64,7 @@ export function RHFUploadSingleFile({ name, ...other }) {
                 </FormHelperText>
               )
             }
+            isMiniSize={isMiniSize}
             {...other}
           />
         );

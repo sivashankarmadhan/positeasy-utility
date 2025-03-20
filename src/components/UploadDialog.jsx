@@ -32,6 +32,7 @@ export default function UploadDialog(props) {
     setOpenPreview(defaultValueDialog);
     setFile(null);
     if (forUpload === IMPORT_EXPORT_TOOLBAR.IMPORT_INVENTORY) intialFetch();
+    if (forUpload === IMPORT_EXPORT_TOOLBAR.IMPORT_ONLINE_STOCK) intialFetch();
   };
   const handleCloseDialog = () => {
     handleClose();

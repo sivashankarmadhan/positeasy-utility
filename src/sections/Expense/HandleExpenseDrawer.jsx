@@ -119,7 +119,7 @@ export default function HandleExpenseDrawer({
         additionalInfo: get(options, 'additionalInfo'),
         category: get(options, 'category.label'),
         paymentType: get(options, 'paymentType'),
-        counterId: get(options,'counterId.id'),
+        counterId: get(options, 'counterId.id'),
       };
 
       const response = await PRODUCTS_API.addExpenses(formatOptions);
@@ -135,9 +135,8 @@ export default function HandleExpenseDrawer({
       toast.error(e?.errorResponse?.message || ErrorConstants.UNABLE_TO_ADD);
     }
   };
- 
-  
-  const handleUpdateExpense = async (data) => { 
+
+  const handleUpdateExpense = async (data) => {
     const options = {
       name: get(data, 'name.label'),
       amountSpent: Number(get(data, 'amountSpent')) * 100,
@@ -145,8 +144,7 @@ export default function HandleExpenseDrawer({
       category: get(data, 'category'),
       paymentType: get(data, 'paymentType'),
       expenseId: get(expense, 'expenseId'),
-      counterId: get(data,'counterId.id'),
-
+      counterId: get(data, 'counterId.id'),
     };
     const obj1 = {
       name: get(expense, 'name'),
@@ -154,7 +152,7 @@ export default function HandleExpenseDrawer({
       additionalInfo: get(expense, 'additionalInfo'),
       category: get(expense, 'category'),
       paymentType: get(expense, 'paymentType'),
-      counterId: get(expense,'counterId.id'),
+      counterId: get(expense, 'counterId.id'),
     };
     const obj2 = options;
 
@@ -244,8 +242,8 @@ export default function HandleExpenseDrawer({
       getCategoryList();
     }
   }, [open]);
+
   useEffect(() => {
-    
     if (expense) {
       reset({
         name: {
@@ -257,7 +255,6 @@ export default function HandleExpenseDrawer({
         additionalInfo: expense.additionalInfo ? expense.additionalInfo : '',
         paymentType: expense.paymentType,
         counterId: expense.counterName,
-
       });
 
       setExpenseDate(
@@ -335,9 +332,7 @@ export default function HandleExpenseDrawer({
           <Grid item xs={12}>
             <RHFSelect name="category" variant="outlined" label="Category" fullWidth>
               {map(expenseCategory, (e) => (
-                <MenuItem value={get(e, 'categoryName')}>
-                  {get(e, 'categoryName')}
-                </MenuItem>
+                <MenuItem value={get(e, 'categoryName')}>{get(e, 'categoryName')}</MenuItem>
               ))}
             </RHFSelect>
           </Grid>
@@ -371,27 +366,25 @@ export default function HandleExpenseDrawer({
               variant="outlined"
               label="Enter Additional Info"
             />
-
           </Grid>
           <Grid item xs={12} lg={12}>
-          <RHFAutocompleteObjOptions
-  name="counterId"
-  variant="outlined"
-  label="Select counter"
-  fullWidth
-  options={map(countersList, (e) => ({
-    label: get(e, 'name'),
-    id: get(e, 'counterId'),
-  }))}
-  disableClearable
-  freeSolo={false} 
-  filterOptions={(options, state) =>
-    options.filter((option) =>
-      option.label.toLowerCase().includes(state.inputValue.toLowerCase())
-    )
-  }
-/>
-
+            <RHFAutocompleteObjOptions
+              name="counterId"
+              variant="outlined"
+              label="Select counter"
+              fullWidth
+              options={map(countersList, (e) => ({
+                label: get(e, 'name'),
+                id: get(e, 'counterId'),
+              }))}
+              disableClearable
+              freeSolo={false}
+              filterOptions={(options, state) =>
+                options.filter((option) =>
+                  option.label.toLowerCase().includes(state.inputValue.toLowerCase())
+                )
+              }
+            />
           </Grid>
           <Grid item xs={12} lg={12}>
             <LoadingButton fullWidth loading={isLoading} type="submit" variant="contained">

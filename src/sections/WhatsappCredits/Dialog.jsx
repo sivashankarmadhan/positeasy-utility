@@ -25,9 +25,11 @@ const DialogComponent = ({ open, onClose, children, title, customMinWidth }) => 
             <Typography variant="h6" sx={{ mb: 1 }}>
               {title}
             </Typography>
-            <IconButton sx={{ color: '#7C7C7C' }} onClick={onClose}>
-              <CloseIcon />
-            </IconButton>
+            {onClose && (
+              <IconButton sx={{ color: '#7C7C7C' }} onClick={onClose}>
+                <CloseIcon />
+              </IconButton>
+            )}
           </Stack>
 
           <Divider sx={{ border: '0.9px dashed #A6A6A6' }} />

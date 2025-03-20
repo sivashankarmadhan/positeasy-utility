@@ -113,3 +113,14 @@ export const TableList = Loadable(lazy(() => import('../pages/TableList')));
 export const WhatsappCredits = Loadable(lazy(() => import('../pages/WhatsappCredits')));
 
 export const RawMaterials = Loadable(lazy(() => import('../sections/RawMaterials/RawMaterial')));
+
+export const OnlineCategory = Loadable(lazy(() => import('../pages/OnlineCategory')));
+export const OptionsGroup = Loadable(lazy(() => import('../pages/OptionsGroup')));
+export const Options = Loadable(lazy(() => import('../pages/Options')));
+export const OnlineStores = Loadable(lazy(() => import('../pages/OnlineStores')));
+export const AddAndEditOnlineInventory = Loadable(
+  lazy(() => import('../pages/Products/AddAndEditOnlineInventory'))
+);
+export const RequestFDLogs = Loadable(lazy(() => import('../pages/RequestFDLogs')));
+export const FDOrders = Loadable(lazy(() => import('../pages/FDOrders')));
+export const OnlineTaxesAndCharges = Loadable(lazy(() => import('../pages/OnlineTaxesAndCharges')));

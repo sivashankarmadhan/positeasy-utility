@@ -52,11 +52,11 @@ import PRODUCTS_API from 'src/services/products';
 import { fCurrency } from 'src/utils/formatNumber';
 import { useSettingsContext } from '../../components/settings';
 import DeleteProduct from './DeleteProduct';
-import HandleItemDrawer from './HandleItemDrawer';
 import InventoryProduct from './InventoryProduct';
 import ItemsHeader from './ItemsHeader';
 import ManageProductStock from './ManageProductStock';
 import STORES_API from 'src/services/stores';
+import HandleItemDrawer from './HandleItemDrawer';
 
 export default function Items() {
   const theme = useTheme();

@@ -62,4 +62,37 @@ export const S3Service = {
       );
     });
   },
+  getCategoryImageLink() {
+    return new Promise((resolve, reject) => {
+      APIService.request(
+        {
+          url: `${API}/api/v1/POS/s3/category-image?format=jpeg`,
+          method: 'GET',
+        },
+        handleCallback(resolve, reject)
+      );
+    });
+  },
+  getOptionImageLink() {
+    return new Promise((resolve, reject) => {
+      APIService.request(
+        {
+          url: `${API}/api/v1/POS/s3/option-image?format=jpeg`,
+          method: 'GET',
+        },
+        handleCallback(resolve, reject)
+      );
+    });
+  },
+  getOnlineItemImageLink() {
+    return new Promise((resolve, reject) => {
+      APIService.request(
+        {
+          url: `${API}/api/v1/POS/s3/onlineProduct-image?format=jpeg`,
+          method: 'GET',
+        },
+        handleCallback(resolve, reject)
+      );
+    });
+  },
 };

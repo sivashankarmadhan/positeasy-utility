@@ -30,7 +30,7 @@ import EventSeatIcon from '@mui/icons-material/EventSeat';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-
+import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
 // ----------------------------------------------------------------------
 const icon = (name) => (
   <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />
@@ -224,6 +224,10 @@ const navConfig = [
           PATH_DASHBOARD.inventory.counters,
           // PATH_DASHBOARD.inventory.addon,
           PATH_DASHBOARD.inventory.batches,
+          PATH_DASHBOARD.inventory.onlineCategory,
+          PATH_DASHBOARD.inventory.options,
+          PATH_DASHBOARD.inventory.optionsGroup,
+          PATH_DASHBOARD.inventory.taxesAndCharges,
         ],
         children: [
           // {
@@ -273,6 +277,66 @@ const navConfig = [
                   History.navigate(PATH_DASHBOARD.inventory.rawMaterials, {
                     state: { isDrawerOpen: true },
                   });
+                }}
+                sx={{ color: 'inherit', width: 30, height: 30 }}
+              >
+                <AddCircleOutlineIcon />
+              </IconButton>
+            ),
+          },
+          {
+            title: 'Online Category',
+            path: PATH_DASHBOARD.inventory.onlineCategory,
+            roleAccess: [...map(ROLES_DATA, (e) => e)],
+            info: (
+              <IconButton
+                onClick={(event) => {
+                  event.preventDefault();
+                }}
+                sx={{ color: 'inherit', width: 30, height: 30 }}
+              >
+                <AddCircleOutlineIcon />
+              </IconButton>
+            ),
+          },
+          {
+            title: 'Options Group',
+            path: PATH_DASHBOARD.inventory.optionsGroup,
+            roleAccess: [...map(ROLES_DATA, (e) => e)],
+            info: (
+              <IconButton
+                onClick={(event) => {
+                  event.preventDefault();
+                }}
+                sx={{ color: 'inherit', width: 30, height: 30 }}
+              >
+                <AddCircleOutlineIcon />
+              </IconButton>
+            ),
+          },
+          {
+            title: 'Options',
+            path: PATH_DASHBOARD.inventory.options,
+            roleAccess: [...map(ROLES_DATA, (e) => e)],
+            info: (
+              <IconButton
+                onClick={(event) => {
+                  event.preventDefault();
+                }}
+                sx={{ color: 'inherit', width: 30, height: 30 }}
+              >
+                <AddCircleOutlineIcon />
+              </IconButton>
+            ),
+          },
+          {
+            title: 'Taxes And Charges',
+            path: PATH_DASHBOARD.inventory.taxesAndCharges,
+            roleAccess: [...map(ROLES_DATA, (e) => e)],
+            info: (
+              <IconButton
+                onClick={(event) => {
+                  event.preventDefault();
                 }}
                 sx={{ color: 'inherit', width: 30, height: 30 }}
               >
@@ -453,6 +517,40 @@ const navConfig = [
         activePaths: [PATH_DASHBOARD.whatsappCredits],
         icon: <WhatsAppIcon />,
         roleAccess: [...map(ROLES_DATA, (e) => e)],
+      },
+      {
+        title: 'Food delivery',
+        path: PATH_DASHBOARD.foodDelivery.scanQR,
+        icon: <DeliveryDiningIcon />,
+        roleAccess: [...map(ROLES_DATA, (e) => e)],
+        activePaths: [
+          PATH_DASHBOARD.foodDelivery.scanQR,
+          PATH_DASHBOARD.foodDelivery.onlineStores,
+          PATH_DASHBOARD.foodDelivery.requestLogs,
+          PATH_DASHBOARD.foodDelivery.FDOrders,
+        ],
+        children: [
+          {
+            title: 'Scan QR',
+            path: PATH_DASHBOARD.foodDelivery.scanQR,
+            roleAccess: [...map(ROLES_DATA, (e) => e)],
+          },
+          {
+            title: 'Online Stores',
+            path: PATH_DASHBOARD.foodDelivery.onlineStores,
+            roleAccess: [...map(ROLES_DATA, (e) => e)],
+          },
+          {
+            title: 'Request Logs',
+            path: PATH_DASHBOARD.foodDelivery.requestLogs,
+            roleAccess: [...map(ROLES_DATA, (e) => e)],
+          },
+          {
+            title: 'Orders',
+            path: PATH_DASHBOARD.foodDelivery.FDOrders,
+            roleAccess: [...map(ROLES_DATA, (e) => e)],
+          },
+        ],
       },
     ],
   },

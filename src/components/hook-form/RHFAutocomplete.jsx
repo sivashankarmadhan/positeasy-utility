@@ -8,7 +8,15 @@ RHFAutocomplete.propTypes = {
   helperText: PropTypes.node,
 };
 
-export default function RHFAutocomplete({ name, label, helperText, options, ...other }) {
+export default function RHFAutocomplete({
+  name,
+  label,
+  helperText,
+  options,
+  multiple,
+  disabledSearchOnChange,
+  ...other
+}) {
   const { control, setValue } = useFormContext();
 
   return (
@@ -17,6 +25,7 @@ export default function RHFAutocomplete({ name, label, helperText, options, ...o
       control={control}
       render={({ field, fieldState: { error } }) => (
         <Autocomplete
+          multiple={multiple}
           freeSolo
           {...field}
           options={options} // Set initial options as an empty array
@@ -27,7 +36,9 @@ export default function RHFAutocomplete({ name, label, helperText, options, ...o
           renderInput={(params) => (
             <TextField
               onChange={(event) => {
-                setValue(name, event.target.value, { shouldValidate: true });
+                if (!disabledSearchOnChange) {
+                  setValue(name, event.target.value, { shouldValidate: true });
+                }
               }}
               label={label}
               error={!!error}
